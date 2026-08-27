@@ -8,6 +8,7 @@ import {
   HelpCircle,
   ExternalLink,
 } from "lucide-react";
+import Footer from "./Footer";
 import { bevelOut, bevelIn } from "../utils/styles";
 
 function Panel({ children }) {
@@ -67,7 +68,7 @@ function Ext({ href, children }) {
   );
 }
 
-export default function Guide({ onBack }) {
+export default function Guide({ onBack, navigate }) {
   return (
     <div
       className="min-h-screen w-full font-mono text-stone-100 p-4 sm:p-6"
@@ -198,6 +199,8 @@ export default function Guide({ onBack }) {
             ツールに戻る
           </button>
         </div>
+
+        {navigate && <Footer navigate={navigate} />}
       </div>
     </div>
   );

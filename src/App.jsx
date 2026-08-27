@@ -6,6 +6,12 @@ import CategorySection from "./components/CategorySection";
 import WarningBox from "./components/WarningBox";
 import LoadingState from "./components/LoadingState";
 import Guide from "./components/Guide";
+import About from "./components/About";
+import Privacy from "./components/Privacy";
+import Contact from "./components/Contact";
+import Footer from "./components/Footer";
+import AdSlot from "./components/AdSlot";
+import IntroSection from "./components/IntroSection";
 import { getGameVersions } from "./services/modrinth";
 import { buildPack } from "./utils/packBuilder";
 import { removeMod, swapMod } from "./utils/packEdit";
@@ -13,7 +19,16 @@ import { buildMrpack, downloadBlob } from "./services/mrpack";
 import { FALLBACK_VERSIONS } from "./data/categories";
 import { bevelOut } from "./utils/styles";
 
+// Tiny history-based router (no dependency). Cloudflare Pages serves index.html
+// for every path via public/_redirects, so deep links like /about work.
+function normalizePath(p) {
+  const s = (p || "/").replace(/\/+$/, "");
+  return s === "" ? "/" : s;
+}
+
 export default function App() {
+  const [route, setRoute] = useState(() => normalizePath(window.location.pathname));
+
   const [versions, setVersions] = useState(FALLBACK_VERSIONS);
   const [version, setVersion] = useState(FALLBACK_VERSIONS[0]);
   const [loader, setLoader] = useState("fabric");
@@ -25,9 +40,24 @@ export default function App() {
   const [error, setError] = useState("");
   const [downloading, setDownloading] = useState(false);
   const [downloadNote, setDownloadNote] = useState("");
-  const [view, setView] = useState("finder"); // "finder" | "guide"
   const [busyId, setBusyId] = useState(null); // project_id being swapped
   const [editNote, setEditNote] = useState("");
+
+  // Keep route state in sync with browser back/forward.
+  useEffect(() => {
+    const onPop = () => setRoute(normalizePath(window.location.pathname));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  function navigate(path) {
+    const p = normalizePath(path);
+    if (p !== normalizePath(window.location.pathname)) {
+      window.history.pushState({}, "", p);
+    }
+    setRoute(p);
+    window.scrollTo(0, 0);
+  }
 
   // Load live Minecraft versions once.
   useEffect(() => {
@@ -104,9 +134,9 @@ export default function App() {
     setEditNote("");
     setBusyId(projectId);
     try {
-      const { pack: next, error } = await swapMod(pack, projectId);
-      if (error) {
-        setEditNote(error);
+      const { pack: next, error: swapError } = await swapMod(pack, projectId);
+      if (swapError) {
+        setEditNote(swapError);
       } else {
         setPack(next);
       }
@@ -124,11 +154,13 @@ export default function App() {
     setEditNote("");
   }
 
-  const isEmptyPack = pack && pack.categories.length === 0;
+  // --- routing ---
+  if (route === "/about") return <About navigate={navigate} />;
+  if (route === "/privacy") return <Privacy navigate={navigate} />;
+  if (route === "/contact") return <Contact navigate={navigate} />;
+  if (route === "/guide") return <Guide onBack={() => navigate("/")} navigate={navigate} />;
 
-  if (view === "guide") {
-    return <Guide onBack={() => setView("finder")} />;
-  }
+  const isEmptyPack = pack && pack.categories.length === 0;
 
   return (
     <div
@@ -138,10 +170,7 @@ export default function App() {
       <div className="mx-auto max-w-5xl">
         {/* header */}
         <div className="flex items-center gap-3 mb-5">
-          <div
-            className="grid place-items-center w-11 h-11 bg-lime-700"
-            style={bevelOut}
-          >
+          <div className="grid place-items-center w-11 h-11 bg-lime-700" style={bevelOut}>
             <Pickaxe className="w-6 h-6" />
           </div>
           <div className="flex-1 min-w-0">
@@ -154,7 +183,7 @@ export default function App() {
           </div>
           <button
             type="button"
-            onClick={() => setView("guide")}
+            onClick={() => navigate("/guide")}
             className="shrink-0 px-3 py-2 bg-stone-800 text-stone-200 text-xs flex items-center gap-1"
             style={bevelOut}
           >
@@ -218,7 +247,7 @@ export default function App() {
                     {downloadNote}
                     <button
                       type="button"
-                      onClick={() => setView("guide")}
+                      onClick={() => navigate("/guide")}
                       className="ml-2 text-lime-400 underline"
                     >
                       使い方を見る →
@@ -252,14 +281,21 @@ export default function App() {
                     busyId={busyId}
                   />
                 ))}
+
+                {/* Ad slot: after the full result list (never near buttons/cards). */}
+                <AdSlot slot="results-end" />
               </>
             )}
           </>
         )}
 
-        <p className="text-center text-[10px] text-stone-600 mt-6">
-          MODデータ提供: Modrinth ・ カードをタップで配布ページへ
-        </p>
+        {/* Site explainer + how-to (below the tool, doesn't block generation). */}
+        <IntroSection />
+
+        {/* Ad slot: page bottom. */}
+        <AdSlot slot="page-bottom" />
+
+        <Footer navigate={navigate} />
       </div>
     </div>
   );
