@@ -1,6 +1,7 @@
-import { Info, ListChecks, HelpCircle } from "lucide-react";
+import { Info, ListChecks, HelpCircle, Layers3 } from "lucide-react";
 import { FAQ } from "../utils/seo";
 import { bevelOut, bevelIn } from "../utils/styles";
+import { SEO_LANDING_PAGES } from "../data/seoLandingPages";
 
 const STEPS = [
   "Minecraftのバージョンを選ぶ",
@@ -50,6 +51,31 @@ export default function IntroSection() {
             </li>
           ))}
         </ol>
+      </section>
+
+      <section className="p-4 sm:p-5 mb-5" style={{ ...bevelOut, background: "#33333a" }}>
+        <div className="flex items-center gap-2 mb-3">
+          <Layers3 className="w-5 h-5 text-lime-400" aria-hidden="true" />
+          <h2 className="text-[15px] font-bold tracking-wide">人気のMOD構成から始める</h2>
+        </div>
+        <p className="text-[13px] text-stone-300 leading-relaxed mb-3">
+          バージョン・ローダー・テーマを設定済みのページから、すぐに構成づくりを始められます。
+        </p>
+        <div className="grid sm:grid-cols-2 gap-2">
+          {SEO_LANDING_PAGES.slice(0, 6).map((page) => (
+            <a
+              key={page.path}
+              href={page.path}
+              className="px-3 min-h-11 flex items-center bg-stone-800 text-[13px] text-lime-200 hover:text-lime-100 underline"
+              style={bevelOut}
+            >
+              Minecraft {page.version} {page.loaderLabel}・{page.themeLabel}
+            </a>
+          ))}
+        </div>
+        <a href="/mods" className="inline-block mt-3 text-[13px] text-lime-300 hover:text-lime-200 underline">
+          すべてのMOD構成を見る →
+        </a>
       </section>
 
       <section className="p-4 sm:p-5" style={{ ...bevelOut, background: "#33333a" }}>

@@ -1,4 +1,5 @@
 import { SITE_CONFIG } from "../data/siteConfig.js";
+import { landingPageForPath } from "../data/seoLandingPages.js";
 
 const BASE = SITE_CONFIG.siteUrl.replace(/\/+$/, "");
 
@@ -17,6 +18,12 @@ export const ROUTE_META = {
     description:
       ".mrpackファイルの中身と、Modrinth App / Prism Launcher への読み込み手順を画像なしで手短に解説。よくあるつまずき（起動しない・MODが入らない）への対処も掲載しています。",
     path: "/guide",
+  },
+  "/mods": {
+    title: "Minecraft MOD構成一覧｜バージョン・ローダー・テーマ別 - MOD PACK FINDER",
+    description:
+      "Minecraftの人気バージョン、Fabric・Forge・NeoForge、冒険・魔法・工業などのテーマ別にMOD構成を選べます。依存MODを解決して.mrpackで無料出力。",
+    path: "/mods",
   },
   "/about": {
     title: "このツールについて - MOD PACK FINDER",
@@ -66,6 +73,15 @@ export const FAQ = [
 ];
 
 export function routeMeta(route) {
+  const landing = landingPageForPath(route);
+  if (landing) {
+    return {
+      title: landing.title,
+      description: landing.description,
+      path: landing.path,
+      landing,
+    };
+  }
   return ROUTE_META[route] || ROUTE_META["/"];
 }
 
@@ -108,7 +124,7 @@ function setJsonLd(objects) {
   el.textContent = JSON.stringify(objects.length === 1 ? objects[0] : objects);
 }
 
-function jsonLdFor(route, meta) {
+export function jsonLdForRoute(route, meta = routeMeta(route)) {
   const app = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
@@ -124,12 +140,42 @@ function jsonLdFor(route, meta) {
   const out = [app];
 
   if (route !== "/") {
+    const landing = meta.landing;
+    const crumbs = landing
+      ? [
+          { name: "ホーム", item: `${BASE}/` },
+          { name: "MOD構成一覧", item: `${BASE}/mods` },
+          { name: `Minecraft ${landing.version}`, item: `${BASE}/mods` },
+          { name: `${landing.loaderLabel} ${landing.themeLabel}`, item: `${BASE}${landing.path}` },
+        ]
+      : [
+          { name: "ホーム", item: `${BASE}/` },
+          { name: meta.title.split(/[｜|]/)[0].trim(), item: `${BASE}${meta.path}` },
+        ];
     out.push({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "ホーム", item: `${BASE}/` },
-        { "@type": "ListItem", position: 2, name: meta.title.split(/[｜|]/)[0].trim(), item: `${BASE}${meta.path}` },
+      itemListElement: crumbs.map((crumb, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        ...crumb,
+      })),
+    });
+  }
+
+  if (meta.landing) {
+    out.push({
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: meta.landing.heading,
+      url: `${BASE}${meta.path}`,
+      inLanguage: "ja",
+      description: meta.description,
+      isPartOf: { "@type": "WebSite", name: SITE_CONFIG.siteName, url: `${BASE}/` },
+      about: [
+        { "@type": "VideoGame", name: `Minecraft ${meta.landing.version}` },
+        { "@type": "Thing", name: meta.landing.loaderLabel },
+        { "@type": "Thing", name: meta.landing.themeLabel },
       ],
     });
   }
@@ -168,5 +214,5 @@ export function applyRouteMeta(route) {
   setMetaName("twitter:title", meta.title);
   setMetaName("twitter:description", meta.description);
 
-  setJsonLd(jsonLdFor(route, meta));
+  setJsonLd(jsonLdForRoute(route, meta));
 }

@@ -13,6 +13,8 @@ import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import AdSlot from "./components/AdSlot";
 import IntroSection from "./components/IntroSection";
+import SeoLandingIntro from "./components/SeoLandingIntro";
+import ModsIndex from "./components/ModsIndex";
 import { getGameVersions } from "./services/modrinth";
 import { buildPack, buildPackFromSlugs, packSignature } from "./utils/packBuilder";
 import { removeMod, swapMod, addMod } from "./utils/packEdit";
@@ -25,6 +27,7 @@ import {
 } from "./utils/urlState";
 import { fmtBytes } from "./utils/format";
 import { bevelOut } from "./utils/styles";
+import { landingPageForPath } from "./data/seoLandingPages";
 
 // Tiny history-based router (no dependency). Cloudflare Pages serves index.html
 // for the known routes via public/_redirects, so deep links like /about work.
@@ -37,12 +40,18 @@ const LOADER_ORDER = LOADERS.map((l) => l.id);
 
 export default function App() {
   const [route, setRoute] = useState(() => normalizePath(window.location.pathname));
+  const landingPage = landingPageForPath(route);
 
   // Initial state: URL first (shared link), then last-used settings, then defaults.
   const initial = useMemo(() => {
     const url = readUrlState();
-    const saved = url.hasAny ? null : loadSettings();
-    const src = url.hasAny ? url : saved || {};
+    const landing = landingPageForPath(normalizePath(window.location.pathname));
+    const saved = url.hasAny || landing ? null : loadSettings();
+    const src = url.hasAny
+      ? url
+      : landing
+        ? { version: landing.version, loader: landing.loader, themeIds: [landing.theme] }
+        : saved || {};
     const version = src.version || FALLBACK_VERSIONS[0];
     const wanted = src.loader || "fabric";
     return {
@@ -315,6 +324,7 @@ export default function App() {
   if (route === "/privacy") return <Privacy navigate={navigate} />;
   if (route === "/contact") return <Contact navigate={navigate} />;
   if (route === "/guide") return <Guide onBack={() => navigate("/")} navigate={navigate} />;
+  if (route === "/mods") return <ModsIndex navigate={navigate} />;
 
   const isEmptyPack = pack && pack.categories.length === 0;
   const currentSignature = packSignature({ version, loader, themeIds, query, includePerformance });
@@ -334,9 +344,15 @@ export default function App() {
             <p className="text-[12px] tracking-[0.2em] uppercase text-lime-400 leading-none mb-1">
               MOD PACK FINDER
             </p>
-            <h1 className="text-lg sm:text-2xl font-bold leading-tight">
-              マイクラのMOD構成を、3クリックで組み立てる
-            </h1>
+            {landingPage ? (
+              <p className="text-lg sm:text-2xl font-bold leading-tight">
+                マイクラのMOD構成を、3クリックで組み立てる
+              </p>
+            ) : (
+              <h1 className="text-lg sm:text-2xl font-bold leading-tight">
+                マイクラのMOD構成を、3クリックで組み立てる
+              </h1>
+            )}
           </div>
           <button
             type="button"
@@ -360,6 +376,8 @@ export default function App() {
           <li>✓ Modrinth の公開データを使用</li>
           <li>✓ 所要 30 秒</li>
         </ul>
+
+        {landingPage && <SeoLandingIntro page={landingPage} />}
 
         <Filters
           versions={versions}

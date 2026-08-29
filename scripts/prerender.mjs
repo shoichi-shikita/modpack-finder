@@ -13,8 +13,9 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { ROUTE_META, FAQ } from "../src/utils/seo.js";
+import { ROUTE_META, FAQ, jsonLdForRoute } from "../src/utils/seo.js";
 import { SITE_CONFIG } from "../src/data/siteConfig.js";
+import { SEO_LANDING_PAGES } from "../src/data/seoLandingPages.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -37,6 +38,9 @@ const NOSCRIPT_BODY = {
     <p>.mrpack は MOD 一式（依存MOD込み）の設計図ファイルです。MOD本体は入っておらず、どのMODをどこから入れるかだけが書かれています。Modrinth App または Prism Launcher に読み込ませると、必要なMODとローダーが自動でそろいます。</p>
     <h2>よくある質問</h2>
     ${FAQ.map((f) => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join("\n    ")}`,
+  "/mods": `<h1>Minecraft MOD構成一覧</h1>
+    <p>人気のMinecraftバージョン、対応ローダー、遊びたいテーマから、条件設定済みのMOD構成ページを選べます。</p>
+    <ul>${SEO_LANDING_PAGES.map((page) => `<li><a href="${esc(page.path)}">Minecraft ${esc(page.version)} ${esc(page.loaderLabel)}・${esc(page.themeLabel)}</a></li>`).join("")}</ul>`,
   "/about": `<h1>このツールについて</h1>
     <p>MOD PACK FINDER は、Minecraft の MOD 探しと MODパックづくりを楽にするための無料のWebツールです。MOD情報は Modrinth の公開データ／APIを利用して取得しています。個人が開発・運営している非公式のファンツールであり、Mojang Studios、Microsoft、Modrinth とは提携していません。</p>`,
   "/privacy": `<h1>プライバシーポリシー</h1>
@@ -44,6 +48,17 @@ const NOSCRIPT_BODY = {
   "/contact": `<h1>お問い合わせ</h1>
     <p>不具合の報告、MOD情報の誤りの指摘、選定への指摘、機能の要望などを受け付けています。このツールはMODの分類を機械的に組み立てているため、利用者からの指摘が精度改善の一番の材料になります。</p>`,
 };
+
+function noscriptBody(route, meta) {
+  if (!meta.landing) return NOSCRIPT_BODY[route] || NOSCRIPT_BODY["/"];
+  const page = meta.landing;
+  return `<h1>${esc(page.heading)}</h1>
+    <p>${esc(page.intro)}</p>
+    <p>${esc(page.versionNote)} ${esc(page.loaderNote)}</p>
+    <h2>この構成の特徴</h2>
+    <ul>${page.points.map((point) => `<li>${esc(point)}</li>`).join("")}</ul>
+    <p>JavaScriptを有効にすると、条件を変更しながらMODを自動選定し、.mrpackとして書き出せます。</p>`;
+}
 
 function applyMeta(html, route, meta) {
   const url = `${BASE}${route === "/" ? "/" : route}`;
@@ -84,8 +99,14 @@ function applyMeta(html, route, meta) {
     `<meta name="twitter:description" content="${esc(meta.description)}" />`
   );
 
+  const jsonLd = JSON.stringify(jsonLdForRoute(route, meta)).replace(/</g, "\\u003c");
+  swap(
+    /<script\s+type="application\/ld\+json"\s+id="mpf-jsonld">[\s\S]*?<\/script>/,
+    `<script type="application/ld+json" id="mpf-jsonld">${jsonLd}</script>`
+  );
+
   // Replace the <noscript> body with the route's own summary.
-  const body = NOSCRIPT_BODY[route] || NOSCRIPT_BODY["/"];
+  const body = noscriptBody(route, meta);
   out = out.replace(
     /<noscript>[\s\S]*?<\/noscript>/,
     `<noscript>
@@ -101,8 +122,17 @@ function applyMeta(html, route, meta) {
 
 const shell = await readFile(join(dist, "index.html"), "utf8");
 const written = [];
+const routes = [
+  ...Object.entries(ROUTE_META),
+  ...SEO_LANDING_PAGES.map((landing) => [landing.path, {
+    title: landing.title,
+    description: landing.description,
+    path: landing.path,
+    landing,
+  }]),
+];
 
-for (const [route, meta] of Object.entries(ROUTE_META)) {
+for (const [route, meta] of routes) {
   const html = applyMeta(shell, route, meta);
   const outDir = route === "/" ? dist : join(dist, route.replace(/^\//, ""));
   await mkdir(outDir, { recursive: true });
@@ -111,4 +141,17 @@ for (const [route, meta] of Object.entries(ROUTE_META)) {
   written.push(relative(root, file));
 }
 
-console.log(`prerender: ${written.length} routes ->\n  ${written.join("\n  ")}`);
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${routes.map(([route]) => {
+  const url = `${BASE}${route === "/" ? "/" : route}`;
+  const isLanding = route.startsWith("/mods/");
+  const priority = route === "/" ? "1.0" : route === "/mods" ? "0.9" : isLanding ? "0.8" : "0.4";
+  const changefreq = route === "/" || route === "/mods" || isLanding ? "weekly" : "yearly";
+  return `  <url>\n    <loc>${esc(url)}</loc>\n    <lastmod>${esc(SITE_CONFIG.lastUpdated)}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+}).join("\n")}
+</urlset>
+`;
+await writeFile(join(dist, "sitemap.xml"), sitemap, "utf8");
+
+console.log(`prerender: ${written.length} routes + sitemap.xml ->\n  ${written.join("\n  ")}`);
