@@ -14,9 +14,9 @@ export const SITE_CONFIG = {
   githubUrl: "https://github.com/shoichi-shikita/modpack-finder",
 
   // --- 広告 ---
-  // "pending" : AdSense 審査中。ローダースクリプトのみ読み込み、広告ユニットは出さない。
-  // "live"    : 広告を実際に掲載中（AdSlot に adSlotId を渡すと実ユニットが出る）。
-  // "off"     : 広告を一切使わない（index.html のスクリプトも外してください）。
+  // "pending" : AdSense 審査中。所有権確認メタタグと ads.txt のみ。広告コード・広告枠は出さない。
+  // "live"    : 承認後、十分な独自コンテンツがある記事だけに手動広告を配置する。
+  // "off"     : AdSense を利用しない。
   adsStatus: "pending",
   adsenseClient: "ca-pub-8989190444093252",
 

@@ -11,7 +11,6 @@ import About from "./components/About";
 import Privacy from "./components/Privacy";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
-import AdSlot from "./components/AdSlot";
 import IntroSection from "./components/IntroSection";
 import SeoLandingIntro from "./components/SeoLandingIntro";
 import ModsIndex from "./components/ModsIndex";
@@ -509,15 +508,12 @@ export default function App() {
 
                 <AddModBox version={pack.version} loader={pack.loader} onAdd={handleAdd} />
 
-                {/* Ad slot: after the full result list (never near buttons/cards). */}
-                <AdSlot slot="results-end" />
               </>
             )}
           </>
         )}
 
         <IntroSection />
-        <AdSlot slot="page-bottom" />
         <Footer navigate={navigate} />
       </div>
     </div>
