@@ -30,7 +30,24 @@ export default function Footer({ navigate }) {
       </nav>
 
       <p className="text-[12px] text-stone-400 mb-1">
-        {SITE_CONFIG.author && <>制作: {SITE_CONFIG.author}　</>}
+        {SITE_CONFIG.author && (
+          <>
+            制作:{" "}
+            {SITE_CONFIG.githubUrl ? (
+              <a
+                href={SITE_CONFIG.githubUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-stone-300 hover:text-lime-300 underline"
+              >
+                {SITE_CONFIG.author}
+              </a>
+            ) : (
+              SITE_CONFIG.author
+            )}
+            <span aria-hidden="true"> · </span>
+          </>
+        )}
         最終更新: {SITE_CONFIG.lastUpdated}
       </p>
       <p className="text-[12px] text-stone-400">

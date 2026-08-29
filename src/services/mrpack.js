@@ -52,15 +52,22 @@ async function getLoaderVersion(loader, mc) {
 
 // Map Modrinth's *project* attributes to mrpack's *install instruction*.
 //
-// These two look alike but mean different things. `client_side: "optional"` on a
-// project means "works without being required"; copying that straight into the
-// mrpack index tells the launcher the mod is optional *for this pack*, and
-// launchers may then skip it. The pack we generate is a list of mods the user
-// chose to install, so anything that CAN run in an environment is "required"
-// there; only a genuinely unsupported side stays "unsupported".
+// These look alike but mean different things. Modrinth's `client_side` /
+// `server_side` describe whether a mod *does anything* in that environment.
+// mrpack's `env` tells the launcher whether to *install the file* there.
+//
+// Every jar in this pack has to land in the client's mods folder — that is what
+// installing the pack means. So client is always "required". Honouring
+// `client_side: "unsupported"` would make launchers silently skip files,
+// including worldgen libraries that a mod hard-depends on (Lithostitched is
+// tagged that way, yet Terralith crashes without it in single player, because
+// single player still runs an integrated server).
+//
+// `server` keeps Modrinth's answer: it is accurate, and it is what someone
+// reusing the pack on a dedicated server needs to know.
 function envFor(mod) {
   return {
-    client: mod.client_side === "unsupported" ? "unsupported" : "required",
+    client: "required",
     server: mod.server_side === "unsupported" ? "unsupported" : "required",
   };
 }
@@ -90,11 +97,9 @@ export async function buildMrpack(pack, packName) {
     fileSize: m.file.size || 0,
   }));
 
-  // Mods that cannot run on a client at all: the launcher will not install them
-  // on a client instance, so the UI must not claim they were included.
-  const clientUnsupported = withFile.filter(
-    (m) => m.client_side === "unsupported"
-  ).length;
+  // Client-only mods. Harmless in a client pack, but worth naming if the user
+  // wants to reuse this pack on a dedicated server.
+  const clientOnly = withFile.filter((m) => m.server_side === "unsupported").length;
   const totalSize = files.reduce((n, f) => n + (f.fileSize || 0), 0);
 
   const loaderVersion = await getLoaderVersion(pack.loader, pack.version);
@@ -124,7 +129,7 @@ export async function buildMrpack(pack, packName) {
     name: safeFileName(packName || "modpack"),
     included: files.length,
     skipped,
-    clientUnsupported,
+    clientOnly,
     totalSize,
     loaderMissing: !loaderVersion,
   };

@@ -5,13 +5,13 @@ export const SITE_CONFIG = {
   siteUrl: "https://modpack-finder.pages.dev",
 
   // --- 運営者情報（E-E-A-T / AdSense の観点で 1 つは埋めることを強く推奨） ---
-  author: "", // 例: "しょういち" — 空なら非表示
+  author: "shoichi-shikita", // 表示する運営者名。好きな表記に変えてOK（空なら非表示）
 
   // --- 連絡手段。1つでも埋めれば /contact が機能します ---
   contactFormUrl: "", // 例: "https://forms.gle/xxxxxxxx"（Googleフォーム）
   contactEmail: "", // 例: "contact@example.com"
   xUrl: "", // 例: "https://x.com/yourhandle"
-  githubUrl: "", // 例: "https://github.com/you/modpack-finder"
+  githubUrl: "https://github.com/shoichi-shikita/modpack-finder",
 
   // --- 広告 ---
   // "pending" : AdSense 審査中。ローダースクリプトのみ読み込み、広告ユニットは出さない。

@@ -237,9 +237,9 @@ export default function App() {
       if (result.skipped > 0) {
         notes.push(`${result.skipped} 個はファイル情報を取得できず除外しました。`);
       }
-      if (result.clientUnsupported > 0) {
+      if (result.clientOnly > 0) {
         notes.push(
-          `${result.clientUnsupported} 個はサーバー専用MODのため、クライアントには導入されません。`
+          `うち ${result.clientOnly} 個はクライアント専用MODです（サーバーに入れる場合は除いてください）。`
         );
       }
       if (result.loaderMissing) {
