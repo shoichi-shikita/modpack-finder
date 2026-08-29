@@ -9,8 +9,8 @@ export const SITE_CONFIG = {
 
   // --- 連絡手段。1つでも埋めれば /contact が機能します ---
   contactFormUrl: "", // 例: "https://forms.gle/xxxxxxxx"（Googleフォーム）
-  contactEmail: "", // 例: "contact@example.com"
-  xUrl: "", // 例: "https://x.com/yourhandle"
+  contactEmail: "shouichi.shikita.4170@gmail.com", // 例: "contact@example.com"
+  xUrl: "https://x.com/shiki_mctools",
   githubUrl: "https://github.com/shoichi-shikita/modpack-finder",
 
   // --- 広告 ---
