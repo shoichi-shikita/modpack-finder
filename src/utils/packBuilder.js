@@ -1,13 +1,37 @@
-import { THEMES, ROLES, getRole, roleLabel, CATEGORY_ORDER } from "../data/categories";
+import { THEMES, getRole, roleLabel, CATEGORY_ORDER } from "../data/categories";
 import { buildWarnings } from "../data/warnings";
+import {
+  MIN_DOWNLOADS,
+  MIN_DOWNLOADS_RELAXED,
+  curatedRank,
+  isAcceptableHit,
+} from "../data/curated";
+import { noteFor } from "../data/modNotes";
 import { fmtShort, addUnique } from "./format";
 import * as api from "../services/modrinth";
 
 // Safety cap so dependency resolution can never run away.
 const MAX_TOTAL = 45;
 
+// A stable fingerprint of the inputs a pack was built from, so the UI can tell
+// when the on-screen result no longer matches the form.
+export function packSignature({ version, loader, themeIds, query, includePerformance }) {
+  return [
+    version,
+    loader,
+    [...themeIds].sort().join(","),
+    (query || "").trim(),
+    includePerformance ? "perf" : "noperf",
+  ].join("|");
+}
+
 function reasonFor(role, hit) {
-  return `人気の${role.label}系MOD（DL ${fmtShort(hit.downloads)}）。${role.reasonTail || "テーマとの相性が高いため採用。"}`;
+  const dl = fmtShort(hit.downloads);
+  const curated = curatedRank(role.id, (hit.slug || "").toLowerCase()) !== Number.MAX_SAFE_INTEGER;
+  if (curated) {
+    return `${role.label}の定番MODとして選定（DL ${dl}）。${role.reasonTail || ""}`.trim();
+  }
+  return `${role.label}カテゴリでダウンロード数が多いため採用（DL ${dl}）。${role.reasonTail || ""}`.trim();
 }
 
 // Extract the downloadable file (for .mrpack export) from a version object.
@@ -29,7 +53,9 @@ export function makeEntry(hit, role) {
     project_id: hit.project_id,
     slug: hit.slug,
     title: hit.title,
-    description: hit.description || "",
+    description: noteFor(hit.slug, hit.description || ""),
+    descriptionEn: hit.description || "",
+    localized: !!noteFor(hit.slug, ""),
     author: hit.author || "",
     downloads: hit.downloads || 0,
     icon_url: hit.icon_url || "",
@@ -50,7 +76,9 @@ export function makeDepEntry(proj, requiredBy) {
     project_id: proj.id,
     slug: proj.slug,
     title: proj.title,
-    description: proj.description || "",
+    description: noteFor(proj.slug, proj.description || ""),
+    descriptionEn: proj.description || "",
+    localized: !!noteFor(proj.slug, ""),
     author: "",
     downloads: proj.downloads || 0,
     icon_url: proj.icon_url || "",
@@ -58,7 +86,7 @@ export function makeDepEntry(proj, requiredBy) {
     client_side: proj.client_side || "required",
     server_side: proj.server_side || "required",
     roleId: "core",
-    reason: "他のMODの動作に必要な前提ライブラリのため自動追加。",
+    reason: "他のMODの動作に必要な前提MODのため自動追加。単体では何も起きません。",
     requiredDeps: [],
     requiredBy: requiredBy ? [requiredBy] : [],
     autoAdded: true,
@@ -66,87 +94,55 @@ export function makeDepEntry(proj, requiredBy) {
   };
 }
 
-// Main entry point. Never throws — collects problems into `errors`.
-export async function buildPack({ version, loader, themeIds, query }) {
-  const errors = [];
+// Order hits so hand-picked mods come first, then by downloads.
+function rankHits(hits, roleId) {
+  return hits
+    .map((h, i) => ({ h, i, r: curatedRank(roleId, (h.slug || "").toLowerCase()) }))
+    .sort((a, b) => (a.r !== b.r ? a.r - b.r : a.i - b.i))
+    .map((x) => x.h);
+}
 
-  // 1. Resolve the set of roles to search from the selected themes.
-  const roleIds = new Set();
-  themeIds.forEach((tid) => {
-    const t = THEMES.find((x) => x.id === tid);
-    if (t) t.roles.forEach((r) => roleIds.add(r));
-  });
-  roleIds.add("performance"); // always auto-add a performance base
+// Apply the quality gate, relaxing the download floor only if the strict pass
+// cannot fill the role's quota.
+function acceptableHits(hits, roleId, wanted) {
+  const strict = hits.filter((h) => isAcceptableHit(h, roleId, MIN_DOWNLOADS));
+  if (strict.length >= wanted) return rankHits(strict, roleId);
+  const relaxed = hits.filter((h) => isAcceptableHit(h, roleId, MIN_DOWNLOADS_RELAXED));
+  return rankHits(relaxed.length >= strict.length ? relaxed : strict, roleId);
+}
 
-  const roleList = [...roleIds]
-    .map((id) => getRole(id))
-    .filter((r) => r && r.facets.length > 0);
-
-  // 2. Search each role in parallel.
-  const searchResults = await Promise.all(
-    roleList.map(async (role) => {
-      try {
-        const hits = await api.searchMods({
-          version,
-          loader,
-          categories: role.facets,
-          query: [role.query, query].filter(Boolean).join(" "),
-          limit: (role.count || 4) + 4,
-        });
-        return { role, hits };
-      } catch {
-        errors.push(`「${role.label}」の検索に失敗しました。`);
-        return { role, hits: [] };
-      }
-    })
-  );
-
-  // 3. Adopt mods, deduping across roles by project_id.
-  const adopted = new Map(); // project_id -> entry
-  const pool = {}; // roleId -> raw hits (for later swap/alternatives)
-  for (const { role, hits } of searchResults) {
-    pool[role.id] = hits;
-    let taken = 0;
-    for (const h of hits) {
-      if (taken >= (role.count || 4)) break;
-      if (adopted.has(h.project_id)) continue;
-      adopted.set(h.project_id, makeEntry(h, role));
-      taken += 1;
-    }
-  }
-
-  // 4 + 5. For each adopted mod, fetch its newest compatible version to (a)
-  // confirm a real file exists and (b) read required dependencies.
+// Resolve every entry's newest compatible version: confirms a real file exists
+// and reads required dependencies. Entries with no compatible file are dropped.
+async function attachVersions(map, loader, version) {
   await Promise.all(
-    [...adopted.keys()].map(async (id) => {
+    [...map.keys()].map(async (id) => {
       try {
         const v = await api.getCompatibleVersion(id, loader, version);
         if (!v) {
-          adopted.delete(id); // no compatible file -> drop
+          map.delete(id);
           return;
         }
-        const entry = adopted.get(id);
+        const entry = map.get(id);
         entry.file = pickFile(v);
-        const reqs = (v.dependencies || []).filter(
-          (d) => d.dependency_type === "required" && d.project_id
-        );
-        entry.requiredDeps = reqs.map((d) => ({ project_id: d.project_id }));
+        entry.requiredDeps = (v.dependencies || [])
+          .filter((d) => d.dependency_type === "required" && d.project_id)
+          .map((d) => ({ project_id: d.project_id }));
       } catch {
-        // Search already guaranteed compatibility; keep the mod, skip deps.
+        map.delete(id);
       }
     })
   );
+}
 
-  // 5b. Resolve dependencies breadth-first, tracking visited to avoid loops.
+// Breadth-first dependency resolution shared by both build paths.
+async function resolveDependencies(adopted, loader, version, errors) {
   const visited = new Set(adopted.keys());
-  const depEntries = new Map(); // project_id -> entry
-  const incompatibleDeps = new Map(); // project_id -> { title }
+  const depEntries = new Map();
+  const incompatibleDeps = new Set();
 
   const queue = [];
   for (const entry of adopted.values()) {
-    for (const d of entry.requiredDeps) {
-      queue.push({ id: d.project_id, requiredBy: entry.title });
-    }
+    for (const d of entry.requiredDeps) queue.push({ id: d.project_id, requiredBy: entry.title });
   }
 
   while (queue.length) {
@@ -163,84 +159,47 @@ export async function buildPack({ version, loader, themeIds, query }) {
     try {
       const v = await api.getCompatibleVersion(id, loader, version);
       if (!v) {
-        incompatibleDeps.set(id, { project_id: id });
+        incompatibleDeps.add(id);
         continue;
       }
-      const projects = await api.getProjects([id]);
-      const proj = projects[0];
+      const [proj] = await api.getProjects([id]);
       if (!proj) continue;
 
       const entry = makeDepEntry(proj, requiredBy);
       entry.file = pickFile(v);
-      const reqs = (v.dependencies || []).filter(
-        (d) => d.dependency_type === "required" && d.project_id
-      );
-      entry.requiredDeps = reqs.map((d) => ({ project_id: d.project_id }));
+      entry.requiredDeps = (v.dependencies || [])
+        .filter((d) => d.dependency_type === "required" && d.project_id)
+        .map((d) => ({ project_id: d.project_id }));
       depEntries.set(id, entry);
 
-      for (const d of reqs) queue.push({ id: d.project_id, requiredBy: proj.title });
+      for (const d of entry.requiredDeps) queue.push({ id: d.project_id, requiredBy: proj.title });
     } catch {
       errors.push("一部の依存MOD情報を取得できませんでした。");
     }
   }
 
-  // 6. Resolve titles for every referenced dependency id (for nice labels).
-  const allEntries = [...adopted.values(), ...depEntries.values()];
-  const titleOf = new Map();
-  allEntries.forEach((e) => titleOf.set(e.project_id, e.title));
+  return { depEntries, incompatibleDeps };
+}
 
-  const unknownIds = [
-    ...new Set(
-      allEntries
-        .flatMap((e) => e.requiredDeps.map((d) => d.project_id))
-        .concat([...incompatibleDeps.keys()])
-        .filter((id) => !titleOf.has(id))
-    ),
-  ];
-  if (unknownIds.length) {
-    try {
-      const projs = await api.getProjects(unknownIds);
-      projs.forEach((p) => titleOf.set(p.id, p.title));
-    } catch {
-      // Non-fatal: fall back to ids as labels.
-    }
-  }
-
-  allEntries.forEach((e) => {
-    e.requiredDeps = e.requiredDeps.map((d) => ({
-      project_id: d.project_id,
-      title: titleOf.get(d.project_id) || d.project_id,
-    }));
-  });
-
-  // 7. Group into ordered, non-empty categories.
+// Group entries into ordered, non-empty categories + derived counts/bars.
+function assemble({ version, loader, allEntries, incompatibleDeps, titleOf, errors, pool, signature }) {
   const byRole = new Map();
   for (const e of allEntries) {
     if (!byRole.has(e.roleId)) byRole.set(e.roleId, []);
     byRole.get(e.roleId).push(e);
   }
-  const categories = CATEGORY_ORDER
-    .filter((id) => byRole.has(id))
-    .map((id) => ({
-      id,
-      label: roleLabel(id),
-      mods: byRole
-        .get(id)
-        .slice()
-        .sort((a, b) => b.downloads - a.downloads),
-    }));
+  const categories = CATEGORY_ORDER.filter((id) => byRole.has(id)).map((id) => ({
+    id,
+    label: roleLabel(id),
+    mods: byRole.get(id).slice().sort((a, b) => b.downloads - a.downloads),
+  }));
 
-  // 8. Counts.
-  const counts = {
-    body: adopted.size,
-    deps: depEntries.size,
-    total: adopted.size + depEntries.size,
-  };
-
-  // 9. Summary bars (one per non-empty category).
+  const body = allEntries.filter((e) => !e.autoAdded).length;
+  const deps = allEntries.filter((e) => e.autoAdded).length;
+  const counts = { body, deps, total: body + deps };
   const bars = categories.map((c) => ({ id: c.id, label: c.label, count: c.mods.length }));
+  const totalSize = allEntries.reduce((n, e) => n + ((e.file && e.file.size) || 0), 0);
 
-  // 10. Warnings.
   const warnings = buildWarnings(allEntries);
   if (incompatibleDeps.size) {
     warnings.push({
@@ -249,9 +208,182 @@ export async function buildPack({ version, loader, themeIds, query }) {
       title: "未対応の可能性がある依存MOD",
       message:
         "以下の必須依存MODは、選択したバージョン/ローダー向けのファイルが見つかりませんでした。導入前に確認してください。",
-      mods: [...incompatibleDeps.keys()].map((id) => titleOf.get(id) || id),
+      mods: [...incompatibleDeps].map((id) => titleOf.get(id) || id),
     });
   }
 
-  return { version, loader, categories, counts, bars, warnings, errors, pool };
+  return {
+    version, loader, categories, counts, bars, totalSize,
+    warnings, errors, pool: pool || {}, signature: signature || "",
+  };
+}
+
+// Fill in a human title for every referenced dependency id.
+async function fillTitles(allEntries, extraIds) {
+  const titleOf = new Map(allEntries.map((e) => [e.project_id, e.title]));
+  const unknown = [
+    ...new Set(
+      allEntries
+        .flatMap((e) => e.requiredDeps.map((d) => d.project_id))
+        .concat(extraIds || [])
+        .filter((id) => !titleOf.has(id))
+    ),
+  ];
+  if (unknown.length) {
+    try {
+      const projs = await api.getProjects(unknown);
+      projs.forEach((p) => titleOf.set(p.id, p.title));
+    } catch {
+      // Non-fatal: fall back to ids as labels.
+    }
+  }
+  allEntries.forEach((e) => {
+    e.requiredDeps = e.requiredDeps.map((d) => ({
+      project_id: d.project_id,
+      title: titleOf.get(d.project_id) || d.project_id,
+    }));
+  });
+  return titleOf;
+}
+
+// --- Main entry point. Never throws — collects problems into `errors`. -------
+export async function buildPack({ version, loader, themeIds, query, includePerformance = true }) {
+  const errors = [];
+
+  // 1. Resolve the roles to search from the selected themes.
+  const roleIds = new Set();
+  themeIds.forEach((tid) => {
+    const t = THEMES.find((x) => x.id === tid);
+    if (t) t.roles.forEach((r) => roleIds.add(r));
+  });
+  if (includePerformance) roleIds.add("performance");
+
+  const roleList = [...roleIds].map((id) => getRole(id)).filter((r) => r && r.facets.length > 0);
+
+  // 2. Search each role in parallel. The user's keyword narrows the themed
+  //    roles only — applying it to "performance" would search for, say,
+  //    "dragon optimization mods", which is meaningless.
+  const searchResults = await Promise.all(
+    roleList.map(async (role) => {
+      const themed = role.id !== "performance";
+      try {
+        const hits = await api.searchMods({
+          version,
+          loader,
+          categories: role.facets,
+          query: themed ? [role.query, query].filter(Boolean).join(" ") : role.query,
+          // Over-fetch: the quality gate below discards a lot.
+          limit: Math.min(50, (role.count || 4) * 4 + 10),
+        });
+        return { role, hits };
+      } catch {
+        errors.push(`「${role.label}」の検索に失敗しました。`);
+        return { role, hits: [] };
+      }
+    })
+  );
+
+  // 3. Filter, rank and adopt, deduping across roles by project_id.
+  const adopted = new Map();
+  const pool = {};
+  for (const { role, hits } of searchResults) {
+    const wanted = role.count || 4;
+    const usable = acceptableHits(hits, role.id, wanted);
+    pool[role.id] = usable;
+    let taken = 0;
+    for (const h of usable) {
+      if (taken >= wanted) break;
+      if (adopted.has(h.project_id)) continue;
+      adopted.set(h.project_id, makeEntry(h, role));
+      taken += 1;
+    }
+  }
+
+  // 4. Confirm real files exist, and read dependencies.
+  await attachVersions(adopted, loader, version);
+
+  // 5. Resolve dependencies.
+  const { depEntries, incompatibleDeps } = await resolveDependencies(
+    adopted, loader, version, errors
+  );
+
+  // 6. Titles + assembly.
+  const allEntries = [...adopted.values(), ...depEntries.values()];
+  const titleOf = await fillTitles(allEntries, [...incompatibleDeps]);
+
+  return assemble({
+    version, loader, allEntries, incompatibleDeps, titleOf, errors, pool,
+    signature: packSignature({ version, loader, themeIds, query, includePerformance }),
+  });
+}
+
+// --- Rebuild an exact pack from a shared link -------------------------------
+// Used when a URL carries `mods=slug,slug,...`, so a shared configuration
+// reproduces the mods the sender actually saw rather than re-running a search
+// whose ranking may have moved.
+function inferRole(categories) {
+  const cats = categories || [];
+  for (const roleId of CATEGORY_ORDER) {
+    const role = getRole(roleId);
+    if (role && role.facets.length && role.facets.some((f) => cats.includes(f))) return role;
+  }
+  return getRole("qol");
+}
+
+export async function buildPackFromSlugs({ version, loader, slugs, signature }) {
+  const errors = [];
+  const adopted = new Map();
+
+  let projects = [];
+  try {
+    projects = await api.getProjects(slugs);
+  } catch {
+    errors.push("共有された構成の読み込みに失敗しました。");
+  }
+  if (!projects.length) {
+    return assemble({
+      version, loader, allEntries: [], incompatibleDeps: new Set(),
+      titleOf: new Map(), errors, pool: {}, signature,
+    });
+  }
+
+  for (const p of projects) {
+    const role = inferRole(p.categories);
+    adopted.set(
+      p.id,
+      makeEntry(
+        {
+          project_id: p.id,
+          slug: p.slug,
+          title: p.title,
+          description: p.description,
+          downloads: p.downloads,
+          icon_url: p.icon_url,
+          categories: p.categories,
+          client_side: p.client_side,
+          server_side: p.server_side,
+          author: "",
+        },
+        role
+      )
+    );
+  }
+
+  const before = adopted.size;
+  await attachVersions(adopted, loader, version);
+  if (adopted.size < before) {
+    errors.push(
+      `${before - adopted.size} 個のMODは ${version} / ${loader} 向けのファイルが見つからず除外しました。`
+    );
+  }
+
+  const { depEntries, incompatibleDeps } = await resolveDependencies(
+    adopted, loader, version, errors
+  );
+  const allEntries = [...adopted.values(), ...depEntries.values()];
+  const titleOf = await fillTitles(allEntries, [...incompatibleDeps]);
+
+  return assemble({
+    version, loader, allEntries, incompatibleDeps, titleOf, errors, pool: {}, signature,
+  });
 }

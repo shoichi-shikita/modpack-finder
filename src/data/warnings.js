@@ -1,5 +1,14 @@
-// Warning templates keyed by a Modrinth category that tends to cause issues.
-// Extensible: add more keys here, or add rows to CONFLICTS for mod-vs-mod rules.
+// Pack-level warnings.
+//
+// Design rule: a warning must be true. Deriving warnings from Modrinth's
+// category tags produced false ones ("Sodium と Iris と FerriteCore は競合します"
+// — they are not) and false library claims, which is worse than showing
+// nothing. So: category templates are limited to the one claim that IS
+// category-shaped (worldgen changes the world), and everything else comes from
+// explicit, hand-written slug rules below.
+//
+// Safety property: rules match on slug. A wrong or renamed slug never fires.
+
 export const WARNING_TEMPLATES = {
   worldgen: {
     type: "worldgen",
@@ -7,23 +16,15 @@ export const WARNING_TEMPLATES = {
     message:
       "このパックにはワールド生成を大きく変えるMODが含まれます。既存ワールドへの途中導入は非推奨です。新規ワールドでの使用をおすすめします。",
   },
-  optimization: {
-    type: "performance",
-    title: "軽量化MODの競合に注意",
-    message:
-      "軽量化・描画系MODは、他のシェーダーや描画変更MODと競合する場合があります。同系統は1つに絞ると安定します。",
-  },
   library: {
     type: "library",
-    title: "前提ライブラリを含みます",
+    title: "前提MODを自動で追加しました",
     message:
-      "ライブラリMODは単体では機能しません。依存元のMODと必ずセットで導入してください（このパックでは自動で追加済みです）。",
+      "採用したMODが必要とする前提ライブラリを自動で追加済みです。これらは単体では何もしませんが、外すと依存元のMODが動かなくなります。",
   },
 };
 
-// Mod-vs-mod conflict database. Each row: two Modrinth slugs that must not be
-// installed together, plus a reason. Matching is case-insensitive on slug, so a
-// wrong/renamed slug simply never fires (safe). Add more rows over time.
+// Hard conflicts: installing both crashes or breaks the game.
 export const CONFLICTS = [
   {
     a: "sodium",
@@ -49,17 +50,63 @@ export const CONFLICTS = [
     reason:
       "CanvasとVulkanModはどちらも描画エンジンを置き換えるため競合します。どちらか一方にしてください。",
   },
+  {
+    a: "sodium",
+    b: "embeddium",
+    reason:
+      "EmbeddiumはSodiumのForge/NeoForge移植版です。両方を同時に導入することはできません。",
+  },
+  {
+    a: "sodium",
+    b: "rubidium",
+    reason:
+      "RubidiumはSodiumのForge移植版です。両方を同時に導入することはできません。",
+  },
+  {
+    a: "iris",
+    b: "oculus",
+    reason:
+      "OculusはIrisのForge移植版です。両方を同時に導入することはできません。",
+  },
 ];
 
-// Detect co-installed conflicting mods.
-function detectConflicts(entries) {
-  const bySlug = new Map();
-  entries.forEach((e) => bySlug.set((e.slug || "").toLowerCase(), e));
+// Soft redundancy: both work, but one of them is wasted (and costs memory).
+export const REDUNDANT_GROUPS = [
+  {
+    id: "recipe-viewer",
+    label: "レシピ表示MOD",
+    slugs: ["jei", "emi", "roughly-enough-items"],
+    reason:
+      "レシピ表示MODが複数入っています。役割が同じなので、どれか1つに絞るとメニューが重複せず動作も軽くなります（迷ったら EMI か JEI）。",
+  },
+  {
+    id: "map",
+    label: "マップMOD",
+    slugs: ["journeymap", "xaeros-minimap", "xaeros-world-map", "ftb-chunks"],
+    reason:
+      "マップMODが複数入っています。JourneyMap と Xaero系は役割が重なるため、どちらかに絞るのがおすすめです（Xaero's Minimap と World Map はセットで使う想定なので、この2つの併用は問題ありません）。",
+  },
+  {
+    id: "storage-network",
+    label: "ストレージ管理MOD",
+    slugs: ["applied-energistics-2", "refined-storage", "toms-storage"],
+    reason:
+      "大規模ストレージMODが複数入っています。どれも同じ役割なので、1つに絞ったほうが導入が簡単で軽くなります。",
+  },
+];
 
+function bySlug(entries) {
+  const m = new Map();
+  entries.forEach((e) => m.set((e.slug || "").toLowerCase(), e));
+  return m;
+}
+
+function detectConflicts(entries) {
+  const map = bySlug(entries);
   const out = [];
   for (const rule of CONFLICTS) {
-    const a = bySlug.get(rule.a.toLowerCase());
-    const b = bySlug.get(rule.b.toLowerCase());
+    const a = map.get(rule.a.toLowerCase());
+    const b = map.get(rule.b.toLowerCase());
     if (a && b) {
       out.push({
         id: `conflict-${rule.a}-${rule.b}`,
@@ -73,22 +120,59 @@ function detectConflicts(entries) {
   return out;
 }
 
-// Build all pack-level warnings from the adopted mods.
-export function buildWarnings(entries) {
+function detectRedundant(entries) {
+  const map = bySlug(entries);
   const out = [];
-
-  // Category-based cautions.
-  for (const key of ["worldgen", "optimization", "library"]) {
-    const affected = entries.filter((e) => (e.categories || []).includes(key));
-    if (affected.length) {
+  for (const group of REDUNDANT_GROUPS) {
+    const hits = group.slugs.map((s) => map.get(s)).filter(Boolean);
+    // The two Xaero mods are designed to be used together — don't nag about them.
+    const distinct =
+      group.id === "map"
+        ? hits.filter(
+            (h) => !["xaeros-world-map"].includes((h.slug || "").toLowerCase())
+          )
+        : hits;
+    if (distinct.length >= 2) {
       out.push({
-        id: `cat-${key}`,
-        ...WARNING_TEMPLATES[key],
-        mods: affected.map((e) => e.title),
+        id: `redundant-${group.id}`,
+        type: "redundant",
+        title: `${group.label}が重複しています`,
+        message: group.reason,
+        mods: hits.map((h) => h.title),
       });
     }
   }
+  return out;
+}
 
-  // Mod-vs-mod conflicts (shown first — most actionable).
-  return [...detectConflicts(entries), ...out];
+export function buildWarnings(entries) {
+  const out = [];
+
+  // Worldgen: real, category-shaped, and actionable. Libraries are excluded so
+  // the list names mods the player would recognise.
+  const worldgen = entries.filter(
+    (e) =>
+      (e.categories || []).includes("worldgen") &&
+      !(e.categories || []).includes("library")
+  );
+  if (worldgen.length) {
+    out.push({
+      id: "cat-worldgen",
+      ...WARNING_TEMPLATES.worldgen,
+      mods: worldgen.map((e) => e.title),
+    });
+  }
+
+  // Libraries: only the ones we actually auto-added as dependencies.
+  const libs = entries.filter((e) => e.autoAdded);
+  if (libs.length) {
+    out.push({
+      id: "cat-library",
+      ...WARNING_TEMPLATES.library,
+      mods: libs.map((e) => e.title),
+    });
+  }
+
+  // Most actionable first.
+  return [...detectConflicts(entries), ...detectRedundant(entries), ...out];
 }

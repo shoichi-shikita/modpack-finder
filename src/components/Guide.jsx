@@ -1,15 +1,13 @@
 import {
   ArrowLeft,
-  Download,
   Package,
-  Play,
   FolderInput,
   Rocket,
   HelpCircle,
   ExternalLink,
 } from "lucide-react";
 import Footer from "./Footer";
-import { bevelOut, bevelIn } from "../utils/styles";
+import { bevelOut } from "../utils/styles";
 
 function Panel({ children }) {
   return (
@@ -39,7 +37,7 @@ function Step({ n, title, children }) {
       </div>
       <div className="min-w-0 flex-1 pt-0.5">
         <div className="font-bold text-sm mb-0.5">{title}</div>
-        <div className="text-[12px] text-stone-300 leading-relaxed">{children}</div>
+        <div className="text-[14px] text-stone-300 leading-relaxed">{children}</div>
       </div>
     </div>
   );
@@ -49,7 +47,7 @@ function Faq({ q, children }) {
   return (
     <div className="mb-4">
       <div className="text-sm font-bold text-lime-300 mb-1">Q. {q}</div>
-      <div className="text-[12px] text-stone-300 leading-relaxed">{children}</div>
+      <div className="text-[14px] text-stone-300 leading-relaxed">{children}</div>
     </div>
   );
 }
@@ -94,13 +92,13 @@ export default function Guide({ onBack, navigate }) {
         {/* intro */}
         <Panel>
           <SectionTitle icon={Package}>作った「.mrpack」って何？</SectionTitle>
-          <p className="text-[12px] text-stone-300 leading-relaxed mb-2">
+          <p className="text-[14px] text-stone-300 leading-relaxed mb-2">
             このツールが作る <b>.mrpack</b> は、MOD一式（依存MODも込み）の「設計図」ファイルです。
             中身にMOD本体は入っておらず、「どのMODを・どこから入れるか」だけが書かれています。
             これを <b>MOD対応のランチャー</b> に読み込ませると、ランチャーが必要なMODとローダーを
             まとめて自動でそろえてくれます。
           </p>
-          <p className="text-[12px] text-stone-400 leading-relaxed">
+          <p className="text-[14px] text-stone-300 leading-relaxed">
             なので、ファイルをダブルクリックしても基本は何も起きません。下の手順でランチャーに渡すのが正解です。
           </p>
         </Panel>
@@ -108,7 +106,7 @@ export default function Guide({ onBack, navigate }) {
         {/* prerequisites */}
         <Panel>
           <SectionTitle icon={HelpCircle}>始める前に必要なもの</SectionTitle>
-          <ul className="text-[12px] text-stone-300 leading-relaxed space-y-1 list-disc pl-5">
+          <ul className="text-[14px] text-stone-300 leading-relaxed space-y-1 list-disc pl-5">
             <li>
               <b>Minecraft: Java Edition</b>（Java版）を持っていること。統合版（スマホ/Switch/Win10版）ではMODは使えません。
             </li>
@@ -122,7 +120,7 @@ export default function Guide({ onBack, navigate }) {
         {/* recommended: Modrinth App */}
         <Panel>
           <SectionTitle icon={Rocket}>おすすめ：Modrinth App で入れる</SectionTitle>
-          <p className="text-[12px] text-stone-400 leading-relaxed mb-4">
+          <p className="text-[14px] text-stone-300 leading-relaxed mb-4">
             一番かんたんなルートです。ランチャー自体が無料で、ドラッグ＆ドロップだけで完結します。
           </p>
 
@@ -142,7 +140,7 @@ export default function Guide({ onBack, navigate }) {
         {/* alternative: Prism */}
         <Panel>
           <SectionTitle icon={FolderInput}>別の方法：Prism Launcher で入れる</SectionTitle>
-          <p className="text-[12px] text-stone-400 leading-relaxed mb-4">
+          <p className="text-[14px] text-stone-300 leading-relaxed mb-4">
             すでに Prism Launcher を使っている人向け。手順もほぼ同じです。
           </p>
           <Step n={1} title="Prism を用意">
@@ -154,7 +152,7 @@ export default function Guide({ onBack, navigate }) {
           <Step n={3} title="起動">
             作られたインスタンスを選んで <b>Launch</b>。依存MODも込みでそろった状態で起動します。
           </Step>
-          <p className="text-[11px] text-stone-500 leading-relaxed mt-3">
+          <p className="text-[13px] text-stone-300 leading-relaxed mt-3">
             ※ ATLauncher など他の主要ランチャーも「Modrinth / mrpack からのインポート」に対応しています。
             メニューに「Import」や「mrpackから追加」があれば同じ流れで使えます。
           </p>

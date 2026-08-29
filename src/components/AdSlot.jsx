@@ -46,7 +46,7 @@ export default function AdSlot({ slot, adSlotId }) {
   if (import.meta.env.DEV) {
     return (
       <div
-        className="my-5 py-6 text-center border-2 border-dashed border-stone-600 text-stone-500 text-[11px] tracking-wider uppercase"
+        className="my-5 py-6 text-center border-2 border-dashed border-stone-600 text-stone-400 text-[12px] tracking-wider uppercase"
         aria-hidden="true"
       >
         広告枠（開発プレビュー）: {slot}

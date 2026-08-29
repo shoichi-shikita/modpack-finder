@@ -1,9 +1,32 @@
-// One place to manage site identity and contact channels.
+// One place to manage site identity, contact channels and ad status.
 // Leave a field as "" to hide it from the UI.
 export const SITE_CONFIG = {
   siteName: "MOD PACK FINDER",
-  siteUrl: "https://modpack-finder.pages.dev/",
-  xUrl: "", // e.g. "https://x.com/yourhandle"
-  contactEmail: "", // e.g. "you@example.com"
-  adsenseClient: "ca-pub-8989190444093252", // AdSense publisher ID (data-ad-client)
+  siteUrl: "https://modpack-finder.pages.dev",
+
+  // --- 運営者情報（E-E-A-T / AdSense の観点で 1 つは埋めることを強く推奨） ---
+  author: "", // 例: "しょういち" — 空なら非表示
+
+  // --- 連絡手段。1つでも埋めれば /contact が機能します ---
+  contactFormUrl: "", // 例: "https://forms.gle/xxxxxxxx"（Googleフォーム）
+  contactEmail: "", // 例: "contact@example.com"
+  xUrl: "", // 例: "https://x.com/yourhandle"
+  githubUrl: "", // 例: "https://github.com/you/modpack-finder"
+
+  // --- 広告 ---
+  // "pending" : AdSense 審査中。ローダースクリプトのみ読み込み、広告ユニットは出さない。
+  // "live"    : 広告を実際に掲載中（AdSlot に adSlotId を渡すと実ユニットが出る）。
+  // "off"     : 広告を一切使わない（index.html のスクリプトも外してください）。
+  adsStatus: "pending",
+  adsenseClient: "ca-pub-8989190444093252",
+
+  lastUpdated: "2026-08-29",
 };
+
+export const hasContactChannel = () =>
+  !!(
+    SITE_CONFIG.contactFormUrl ||
+    SITE_CONFIG.contactEmail ||
+    SITE_CONFIG.xUrl ||
+    SITE_CONFIG.githubUrl
+  );

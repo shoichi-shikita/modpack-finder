@@ -5,49 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <!-- Google AdSense -->
+    <!-- Google AdSense (loader only while the site is under review; ad units
+         are rendered by src/components/AdSlot.jsx once slot ids are set) -->
     <script
       async
       src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8989190444093252"
       crossorigin="anonymous"
     ></script>
 
-
-    <title>MOD PACK FINDER | Minecraft MODパック自動作成ツール</title>
+    <!-- Defaults for the "/" route. src/utils/seo.js rewrites title,
+         description, canonical and OGP on every client-side navigation, so
+         /about and /privacy no longer declare themselves duplicates of "/". -->
+    <title>マイクラMOD構成を自動作成｜.mrpack出力 - MOD PACK FINDER</title>
     <meta
       name="description"
-      content="Minecraftのバージョン・Mod Loader・遊びたいテーマからMOD構成を自動提案。依存MODを確認し、.mrpack形式で出力できる無料ツール。"
+      content="Minecraftのバージョン・Mod Loader・遊びたいテーマを選ぶだけで、依存MODまで解決したMOD構成を自動作成。.mrpackで書き出してModrinth App / Prism Launcherにドラッグするだけ。登録不要・無料。"
     />
     <link rel="canonical" href="https://modpack-finder.pages.dev/" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="MOD PACK FINDER" />
-    <meta property="og:title" content="MOD PACK FINDER | Minecraft MODパック自動作成ツール" />
+    <meta property="og:title" content="マイクラMOD構成を自動作成｜.mrpack出力 - MOD PACK FINDER" />
     <meta
       property="og:description"
-      content="Minecraftのバージョン・Mod Loader・遊びたいテーマからMOD構成を自動提案。依存MODを確認し、.mrpack形式で出力できる無料ツール。"
+      content="バージョン・Mod Loader・遊びたいテーマを選ぶだけ。依存MODまで解決したMOD構成を .mrpack で書き出し、ランチャーにドラッグするだけで導入できます。"
     />
     <meta property="og:url" content="https://modpack-finder.pages.dev/" />
     <meta property="og:locale" content="ja_JP" />
+    <meta property="og:image" content="https://modpack-finder.pages.dev/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="MOD PACK FINDER — マイクラのMOD構成を3クリックで組み立てる" />
 
     <!-- X / Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="MOD PACK FINDER | Minecraft MODパック自動作成ツール" />
+    <meta name="twitter:title" content="マイクラMOD構成を自動作成｜.mrpack出力 - MOD PACK FINDER" />
     <meta
       name="twitter:description"
-      content="Minecraftのバージョン・Mod Loader・遊びたいテーマからMOD構成を自動提案。依存MODを確認し、.mrpack形式で出力できる無料ツール。"
+      content="バージョン・Mod Loader・遊びたいテーマを選ぶだけ。依存MODまで解決したMOD構成を .mrpack で書き出せます。"
     />
+    <meta name="twitter:image" content="https://modpack-finder.pages.dev/og-image.png" />
 
-    <!--
-      OGP画像を用意したら、1200x630程度の画像を public/og-image.png として置き、
-      以下の2行のコメントを外してください（実画像が無いうちは指定しません）。
-      <meta property="og:image" content="https://modpack-finder.pages.dev/og-image.png" />
-      <meta name="twitter:image" content="https://modpack-finder.pages.dev/og-image.png" />
-    -->
+    <link rel="preconnect" href="https://api.modrinth.com" />
+    <link rel="preconnect" href="https://cdn.modrinth.com" crossorigin />
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div style="max-width:720px;margin:48px auto;padding:24px;font-family:system-ui,sans-serif;line-height:1.9;color:#f5f5f4;background:#33333a">
+        <h1 style="font-size:20px;margin:0 0 12px">マイクラのMOD構成を、3クリックで組み立てる</h1>
+        <p style="margin:0 0 12px">
+          MOD PACK FINDER は、Minecraft のバージョン・Mod Loader・遊びたいテーマを選ぶだけで、
+          依存MODまで解決したMODパック構成を自動で組み立てる無料ツールです。
+          できあがった構成は .mrpack として書き出せ、Modrinth App や Prism Launcher に
+          ドラッグ＆ドロップするだけで導入できます。
+        </p>
+        <p style="margin:0">
+          このツールの動作には JavaScript が必要です。ブラウザの設定で JavaScript を有効にしてください。
+        </p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

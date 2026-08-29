@@ -1,12 +1,5 @@
 import {
-  Download,
-  ExternalLink,
-  Boxes,
-  Link2,
-  Sparkles,
-  X,
-  RefreshCw,
-  Loader2,
+  Download, ExternalLink, Boxes, Link2, Sparkles, X, RefreshCw, Loader2,
 } from "lucide-react";
 import { fmtShort } from "../utils/format";
 import { bevelIn, bevelOut } from "../utils/styles";
@@ -30,22 +23,35 @@ export default function ModCard({ mod, onRemove, onSwap, busy }) {
           style={bevelIn}
         >
           {mod.icon_url ? (
-            <img src={mod.icon_url} alt="" className="w-full h-full object-cover" />
+            <img
+              src={mod.icon_url}
+              alt=""
+              width="48"
+              height="48"
+              loading="lazy"
+              className="w-full h-full object-cover"
+            />
           ) : (
-            <Boxes className="w-5 h-5 text-stone-500" />
+            <Boxes className="w-5 h-5 text-stone-400" />
           )}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1">
-            <span className="font-bold text-sm truncate">{mod.title}</span>
-            <ExternalLink className="w-3 h-3 text-stone-500 opacity-0 group-hover:opacity-100 shrink-0" />
+            <span className="font-bold text-[15px] truncate">{mod.title}</span>
+            <ExternalLink
+              className="w-3 h-3 text-stone-400 opacity-60 group-hover:opacity-100 shrink-0"
+              aria-hidden="true"
+            />
           </div>
-          <p className="text-[11px] text-stone-400 line-clamp-2 leading-snug mt-0.5">
+          <p
+            lang={mod.localized ? "ja" : "en"}
+            className="text-[13px] text-stone-300 line-clamp-3 leading-snug mt-1"
+          >
             {mod.description}
           </p>
-          <div className="flex items-center gap-3 mt-1 text-[10px] text-stone-500">
-            <span className="flex items-center gap-1">
-              <Download className="w-3 h-3" />
+          <div className="flex items-center gap-3 mt-1.5 text-[12px] text-stone-400">
+            <span className="flex items-center gap-1 tabular-nums">
+              <Download className="w-3 h-3" aria-hidden="true" />
               {fmtShort(mod.downloads)}
             </span>
             {mod.author && <span className="truncate">by {mod.author}</span>}
@@ -59,45 +65,47 @@ export default function ModCard({ mod, onRemove, onSwap, busy }) {
             type="button"
             onClick={() => onSwap(mod.project_id)}
             disabled={busy}
-            className="flex-1 px-2 py-1.5 text-[11px] bg-stone-800 text-stone-200 flex items-center justify-center gap-1 disabled:opacity-50"
+            aria-label={`${mod.title} を別の候補に入れ替える`}
+            className="flex-1 px-2 min-h-11 text-[13px] bg-stone-800 text-stone-100 flex items-center justify-center gap-1 disabled:opacity-50"
             style={bevelOut}
           >
-            <RefreshCw className="w-3 h-3" />
-            別の候補に入れ替え
+            <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
+            入れ替え
           </button>
           <button
             type="button"
             onClick={() => onRemove(mod.project_id)}
             disabled={busy}
-            className="px-2 py-1.5 text-[11px] bg-stone-800 text-red-300 flex items-center justify-center gap-1 disabled:opacity-50"
+            aria-label={`${mod.title} を構成から外す`}
+            className="flex-1 px-2 min-h-11 text-[13px] bg-stone-800 text-red-200 flex items-center justify-center gap-1 disabled:opacity-50"
             style={bevelOut}
           >
-            <X className="w-3 h-3" />
+            <X className="w-3.5 h-3.5" aria-hidden="true" />
             外す
           </button>
         </div>
       )}
 
       {mod.autoAdded && (
-        <div className="text-[10px] text-amber-300 bg-amber-950/40 px-2 py-1" style={bevelIn}>
+        <div className="text-[12px] text-amber-200 bg-amber-950/50 px-2 py-1.5" style={bevelIn}>
           依存関係により自動追加
           {mod.requiredBy && mod.requiredBy.length > 0 && (
-            <span className="text-amber-500/80">（{mod.requiredBy.join(", ")} が必要）</span>
+            <span className="text-amber-300/90">（{mod.requiredBy.join(", ")} が必要）</span>
           )}
         </div>
       )}
 
-      <div className="text-[11px] text-stone-300 bg-stone-800/60 px-2 py-1.5" style={bevelIn}>
-        <div className="flex items-center gap-1 text-lime-400 text-[10px] uppercase tracking-wider mb-0.5">
-          <Sparkles className="w-3 h-3" />
+      <div className="text-[13px] text-stone-200 bg-stone-800/70 px-2 py-1.5" style={bevelIn}>
+        <div className="flex items-center gap-1 text-lime-300 text-[12px] uppercase tracking-wider mb-0.5">
+          <Sparkles className="w-3 h-3" aria-hidden="true" />
           採用理由
         </div>
         {mod.reason}
       </div>
 
       {deps.length > 0 && (
-        <div className="text-[10px] text-stone-400 flex items-start gap-1">
-          <Link2 className="w-3 h-3 mt-0.5 shrink-0" />
+        <div className="text-[12px] text-stone-300 flex items-start gap-1">
+          <Link2 className="w-3 h-3 mt-0.5 shrink-0" aria-hidden="true" />
           <span>依存: {deps.map((d) => d.title).join(", ")}</span>
         </div>
       )}

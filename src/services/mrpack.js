@@ -50,8 +50,29 @@ async function getLoaderVersion(loader, mc) {
   return "";
 }
 
-function envValue(v) {
-  return v === "optional" || v === "unsupported" ? v : "required";
+// Map Modrinth's *project* attributes to mrpack's *install instruction*.
+//
+// These two look alike but mean different things. `client_side: "optional"` on a
+// project means "works without being required"; copying that straight into the
+// mrpack index tells the launcher the mod is optional *for this pack*, and
+// launchers may then skip it. The pack we generate is a list of mods the user
+// chose to install, so anything that CAN run in an environment is "required"
+// there; only a genuinely unsupported side stays "unsupported".
+function envFor(mod) {
+  return {
+    client: mod.client_side === "unsupported" ? "unsupported" : "required",
+    server: mod.server_side === "unsupported" ? "unsupported" : "required",
+  };
+}
+
+// A file name that survives Windows/macOS and still says what the pack is.
+function safeFileName(packName) {
+  const base = packName
+    .replace(/[\\/:*?"<>|]+/g, "-")
+    .replace(/\s+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^[_-]+|[_-]+$/g, "");
+  return `${base || "modpack"}.mrpack`;
 }
 
 // Build a .mrpack (Modrinth modpack) Blob from a built pack object.
@@ -64,10 +85,17 @@ export async function buildMrpack(pack, packName) {
   const files = withFile.map((m) => ({
     path: `mods/${m.file.filename}`,
     hashes: { sha1: m.file.sha1 || "", sha512: m.file.sha512 || "" },
-    env: { client: envValue(m.client_side), server: envValue(m.server_side) },
+    env: envFor(m),
     downloads: [m.file.url],
     fileSize: m.file.size || 0,
   }));
+
+  // Mods that cannot run on a client at all: the launcher will not install them
+  // on a client instance, so the UI must not claim they were included.
+  const clientUnsupported = withFile.filter(
+    (m) => m.client_side === "unsupported"
+  ).length;
+  const totalSize = files.reduce((n, f) => n + (f.fileSize || 0), 0);
 
   const loaderVersion = await getLoaderVersion(pack.loader, pack.version);
   const dependencies = { minecraft: pack.version };
@@ -93,9 +121,11 @@ export async function buildMrpack(pack, packName) {
 
   return {
     blob,
-    name: `${(packName || "modpack").replace(/[^\w.-]+/g, "_")}.mrpack`,
+    name: safeFileName(packName || "modpack"),
     included: files.length,
     skipped,
+    clientUnsupported,
+    totalSize,
     loaderMissing: !loaderVersion,
   };
 }

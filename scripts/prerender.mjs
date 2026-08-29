@@ -1,0 +1,114 @@
+// Emit a real HTML file per route after `vite build`.
+//
+// Why: this is a client-rendered SPA that ships one index.html. Every route
+// therefore served the same <title>, <meta name="description"> and
+// <link rel="canonical" href="/">, which tells search engines that /about,
+// /privacy and /contact are duplicates of the home page. Rewriting those tags
+// in JavaScript fixes what a user sees but not what a crawler indexes first.
+//
+// This script copies dist/index.html per route and swaps the head tags plus a
+// <noscript> summary, so each URL is a genuine, self-describing document.
+
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { ROUTE_META, FAQ } from "../src/utils/seo.js";
+import { SITE_CONFIG } from "../src/data/siteConfig.js";
+
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const dist = join(root, "dist");
+const BASE = SITE_CONFIG.siteUrl.replace(/\/+$/, "");
+
+const esc = (s) =>
+  String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+// Short, human summary rendered inside <noscript> so the document says
+// something real even before JavaScript runs.
+const NOSCRIPT_BODY = {
+  "/": `<h1>マイクラのMOD構成を、3クリックで組み立てる</h1>
+    <p>Minecraft のバージョン・Mod Loader・遊びたいテーマを選ぶだけで、依存MODまで解決したMODパック構成を自動で組み立てる無料ツールです。できあがった構成は .mrpack として書き出せ、Modrinth App や Prism Launcher にドラッグ＆ドロップするだけで導入できます。</p>
+    <p>登録不要・完全無料。MOD情報は Modrinth の公開APIから取得し、選んだバージョンとローダーに対応するファイルが実在するMODだけを採用します。</p>`,
+  "/guide": `<h1>.mrpack の使い方</h1>
+    <p>.mrpack は MOD 一式（依存MOD込み）の設計図ファイルです。MOD本体は入っておらず、どのMODをどこから入れるかだけが書かれています。Modrinth App または Prism Launcher に読み込ませると、必要なMODとローダーが自動でそろいます。</p>
+    <h2>よくある質問</h2>
+    ${FAQ.map((f) => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join("\n    ")}`,
+  "/about": `<h1>このツールについて</h1>
+    <p>MOD PACK FINDER は、Minecraft の MOD 探しと MODパックづくりを楽にするための無料のWebツールです。MOD情報は Modrinth の公開データ／APIを利用して取得しています。個人が開発・運営している非公式のファンツールであり、Mojang Studios、Microsoft、Modrinth とは提携していません。</p>`,
+  "/privacy": `<h1>プライバシーポリシー</h1>
+    <p>MOD PACK FINDER におけるアクセス解析、広告配信、外部サービスの利用、.mrpack 生成時のデータの取り扱いについて説明しています。当サイトに会員登録やアカウント作成の機能はありません。</p>`,
+  "/contact": `<h1>お問い合わせ</h1>
+    <p>不具合の報告、MOD情報の誤りの指摘、選定への指摘、機能の要望などを受け付けています。このツールはMODの分類を機械的に組み立てているため、利用者からの指摘が精度改善の一番の材料になります。</p>`,
+};
+
+function applyMeta(html, route, meta) {
+  const url = `${BASE}${route === "/" ? "/" : route}`;
+  let out = html;
+
+  const swap = (re, next) => {
+    if (re.test(out)) out = out.replace(re, next);
+    else out = out.replace("</head>", `    ${next}\n  </head>`);
+  };
+
+  out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(meta.title)}</title>`);
+  swap(
+    /<meta\s+name="description"[\s\S]*?\/>/,
+    `<meta name="description" content="${esc(meta.description)}" />`
+  );
+  swap(
+    /<link\s+rel="canonical"[^>]*\/>/,
+    `<link rel="canonical" href="${esc(url)}" />`
+  );
+  swap(
+    /<meta\s+property="og:title"[\s\S]*?\/>/,
+    `<meta property="og:title" content="${esc(meta.title)}" />`
+  );
+  swap(
+    /<meta\s+property="og:description"[\s\S]*?\/>/,
+    `<meta property="og:description" content="${esc(meta.description)}" />`
+  );
+  swap(
+    /<meta\s+property="og:url"[^>]*\/>/,
+    `<meta property="og:url" content="${esc(url)}" />`
+  );
+  swap(
+    /<meta\s+name="twitter:title"[\s\S]*?\/>/,
+    `<meta name="twitter:title" content="${esc(meta.title)}" />`
+  );
+  swap(
+    /<meta\s+name="twitter:description"[\s\S]*?\/>/,
+    `<meta name="twitter:description" content="${esc(meta.description)}" />`
+  );
+
+  // Replace the <noscript> body with the route's own summary.
+  const body = NOSCRIPT_BODY[route] || NOSCRIPT_BODY["/"];
+  out = out.replace(
+    /<noscript>[\s\S]*?<\/noscript>/,
+    `<noscript>
+      <div style="max-width:720px;margin:48px auto;padding:24px;font-family:system-ui,sans-serif;line-height:1.9;color:#f5f5f4;background:#33333a">
+    ${body}
+        <p><a href="/" style="color:#a3e635">MOD PACK FINDER トップページ</a></p>
+      </div>
+    </noscript>`
+  );
+
+  return out;
+}
+
+const shell = await readFile(join(dist, "index.html"), "utf8");
+const written = [];
+
+for (const [route, meta] of Object.entries(ROUTE_META)) {
+  const html = applyMeta(shell, route, meta);
+  const outDir = route === "/" ? dist : join(dist, route.replace(/^\//, ""));
+  await mkdir(outDir, { recursive: true });
+  const file = join(outDir, "index.html");
+  await writeFile(file, html, "utf8");
+  written.push(relative(root, file));
+}
+
+console.log(`prerender: ${written.length} routes ->\n  ${written.join("\n  ")}`);

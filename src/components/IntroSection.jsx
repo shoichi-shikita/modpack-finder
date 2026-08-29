@@ -1,51 +1,71 @@
-import { Info, ListChecks } from "lucide-react";
+import { Info, ListChecks, HelpCircle } from "lucide-react";
+import { FAQ } from "../utils/seo";
 import { bevelOut, bevelIn } from "../utils/styles";
 
 const STEPS = [
   "Minecraftのバージョンを選ぶ",
   "Mod Loader（Fabric / Forge / NeoForge / Quilt）を選ぶ",
   "遊びたいテーマを選ぶ（複数OK）",
-  "「MODパックを生成」を押す",
-  "内容を確認し、不要なMODは外す・別候補に入れ替える",
-  ".mrpack として出力してランチャーに読み込む",
+  "「この条件で構成を作る」を押す",
+  "内容を確認し、不要なMODは外す・入れ替える・足りないMODを追加する",
+  ".mrpack として書き出してランチャーに読み込む",
 ];
 
 export default function IntroSection() {
   return (
     <div className="mt-8">
-      <div className="p-4 sm:p-5 mb-5" style={{ ...bevelOut, background: "#33333a" }}>
+      <section className="p-4 sm:p-5 mb-5" style={{ ...bevelOut, background: "#33333a" }}>
         <div className="flex items-center gap-2 mb-2">
-          <Info className="w-5 h-5 text-lime-400" />
-          <h2 className="text-base font-bold tracking-wide">MOD PACK FINDER とは？</h2>
+          <Info className="w-5 h-5 text-lime-400" aria-hidden="true" />
+          <h2 className="text-[15px] font-bold tracking-wide">MOD PACK FINDER とは？</h2>
         </div>
-        <p className="text-[12px] text-stone-300 leading-relaxed">
-          Minecraftのバージョン・Mod Loader・遊びたいテーマを選ぶだけで、条件に合うMODを役割ごとに
-          選び、依存MODまで含めた「そのまま遊べるMODパック構成」を自動で提案する無料ツールです。
+        <p className="text-[14px] text-stone-200 leading-relaxed">
+          Minecraftのバージョン・Mod Loader・遊びたいテーマを選ぶだけで、条件に合うMODを役割ごとに選び、
+          依存MODまで含めたMODパック構成を自動で組み立てる無料ツールです。
           「MODは入れたいけど、対応バージョンや依存関係を1つずつ調べるのが大変」という人に向いています。
-          できあがった構成は <b>.mrpack</b> として出力でき、Modrinth App や Prism Launcher に読み込めば
-          依存MODごとまとめて導入できます。
+          できあがった構成は <b className="text-stone-100">.mrpack</b> として書き出せ、Modrinth App や
+          Prism Launcher に読み込めば依存MODごとまとめて導入できます。
         </p>
-      </div>
+        <p className="text-[13px] text-stone-300 leading-relaxed mt-2">
+          MODの情報は Modrinth の公開APIから取得し、対応バージョンのファイルが実在するMODだけを採用しています。
+          日本語の説明は当サイトが独自に付けているもので、未対応のMODは Modrinth の英語原文を表示します。
+        </p>
+      </section>
 
-      <div className="p-4 sm:p-5" style={{ ...bevelOut, background: "#33333a" }}>
+      <section className="p-4 sm:p-5 mb-5" style={{ ...bevelOut, background: "#33333a" }}>
         <div className="flex items-center gap-2 mb-3">
-          <ListChecks className="w-5 h-5 text-lime-400" />
-          <h2 className="text-base font-bold tracking-wide">使い方</h2>
+          <ListChecks className="w-5 h-5 text-lime-400" aria-hidden="true" />
+          <h2 className="text-[15px] font-bold tracking-wide">使い方</h2>
         </div>
         <ol className="space-y-2">
           {STEPS.map((s, i) => (
             <li key={s} className="flex gap-3 items-start">
               <span
-                className="shrink-0 w-6 h-6 grid place-items-center bg-lime-700 text-white text-xs font-bold"
+                className="shrink-0 w-6 h-6 grid place-items-center bg-lime-700 text-white text-[12px] font-bold"
                 style={bevelIn}
               >
                 {i + 1}
               </span>
-              <span className="text-[12px] text-stone-300 leading-relaxed pt-0.5">{s}</span>
+              <span className="text-[14px] text-stone-200 leading-relaxed pt-0.5">{s}</span>
             </li>
           ))}
         </ol>
-      </div>
+      </section>
+
+      <section className="p-4 sm:p-5" style={{ ...bevelOut, background: "#33333a" }}>
+        <div className="flex items-center gap-2 mb-3">
+          <HelpCircle className="w-5 h-5 text-lime-400" aria-hidden="true" />
+          <h2 className="text-[15px] font-bold tracking-wide">よくある質問</h2>
+        </div>
+        <dl className="space-y-3">
+          {FAQ.map((f) => (
+            <div key={f.q}>
+              <dt className="text-[14px] font-bold text-lime-200">Q. {f.q}</dt>
+              <dd className="text-[14px] text-stone-200 leading-relaxed mt-0.5">{f.a}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
     </div>
   );
 }

@@ -29,37 +29,49 @@ export default function Privacy({ navigate }) {
       </Section>
 
       <Section title="広告について">
-        <p>
-          当サイトは、将来的に第三者配信の広告サービスである <b>Google AdSense</b> を利用する可能性があります。
-          広告を掲載する場合、次の点にご留意ください。
-        </p>
-        <ul className="list-disc pl-5 space-y-1">
-          <li>
-            Googleを含む第三者配信事業者は、Cookie等を使用して、利用者の当サイトや他サイトへの過去の
-            アクセス情報に基づいて広告を配信することがあります。
-          </li>
-          <li>
-            利用者は、<Ext href="https://www.google.com/settings/ads">Googleの広告設定</Ext>{" "}
-            からパーソナライズ広告を無効にできます。また{" "}
-            <Ext href="https://www.aboutads.info/choices/">www.aboutads.info</Ext>{" "}
-            から、第三者配信事業者のCookieを無効にすることもできます。
-          </li>
-          <li>
-            広告配信におけるGoogleのデータ利用については、
-            <Ext href="https://policies.google.com/technologies/partner-sites">
-              Googleのポリシーと規約
-            </Ext>
-            をご確認ください。
-          </li>
-          <li>
-            欧州経済領域（EEA）、英国、スイスの利用者に対して広告を配信する際は、
-            関連法およびGoogleの要件に従い、適切な同意取得の仕組みを用いる予定です。
-          </li>
-        </ul>
-        <p className="text-stone-500">
-          ※ 現時点では広告は掲載していません。掲載を開始する際に、本ポリシーの記載が実際の運用と一致する
-          ことを確認します。
-        </p>
+        {SITE_CONFIG.adsStatus === "off" ? (
+          <p>当サイトは現在、広告を掲載しておらず、広告配信事業者のスクリプトも読み込んでいません。</p>
+        ) : (
+          <>
+            <p>
+              当サイトは第三者配信の広告サービスである <b>Google AdSense</b> を利用しています。
+              {SITE_CONFIG.adsStatus === "pending" ? (
+                <>
+                  {" "}
+                  現在は審査・準備の段階で<b>広告枠は表示していません</b>が、
+                  AdSense のスクリプト（ローダー）はすべてのページで読み込まれています。
+                </>
+              ) : (
+                <> 当サイトのページには広告枠を掲載しています。</>
+              )}
+            </p>
+            <p>広告配信にあたっては次の点にご留意ください。</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>
+                Googleを含む第三者配信事業者は、Cookie等を使用して、利用者の当サイトや他サイトへの過去の
+                アクセス情報に基づいて広告を配信することがあります。
+              </li>
+              <li>
+                利用者は、<Ext href="https://www.google.com/settings/ads">Googleの広告設定</Ext>{" "}
+                からパーソナライズ広告を無効にできます。また{" "}
+                <Ext href="https://www.aboutads.info/choices/">www.aboutads.info</Ext>{" "}
+                から、第三者配信事業者のCookieを無効にすることもできます。
+              </li>
+              <li>
+                広告配信におけるGoogleのデータ利用については、
+                <Ext href="https://policies.google.com/technologies/partner-sites">
+                  Googleのポリシーと規約
+                </Ext>
+                をご確認ください。
+              </li>
+              <li>
+                欧州経済領域（EEA）、英国、スイスの利用者に対しては、Googleが認定した同意管理プラットフォーム
+                （CMP）を通じて同意を取得したうえで広告を配信します。同意管理が有効になるまでの間、
+                これらの地域では広告枠を表示しません。
+              </li>
+            </ul>
+          </>
+        )}
       </Section>
 
       <Section title="外部サービスの利用">

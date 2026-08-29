@@ -76,9 +76,10 @@ export function recomputeDerived(pack) {
   const depsCount = allKept.filter((e) => e.autoAdded).length;
   const counts = { body, deps: depsCount, total: body + depsCount };
   const bars = categories.map((c) => ({ id: c.id, label: c.label, count: c.mods.length }));
+  const totalSize = allKept.reduce((n, e) => n + ((e.file && e.file.size) || 0), 0);
   const warnings = buildWarnings(allKept);
 
-  return { ...pack, categories, counts, bars, warnings };
+  return { ...pack, categories, counts, bars, totalSize, warnings };
 }
 
 // Remove a mod (and cascade-clean any dependencies it orphaned).
@@ -227,4 +228,67 @@ async function fillDepTitles(pack) {
     })),
   }));
   return { ...pack, categories };
+}
+
+// Add a specific mod (by Modrinth id or slug) to the pack, resolving its
+// dependencies. Returns { pack, error }.
+export async function addMod(pack, idOrSlug) {
+  const entries = flatten(pack);
+  const projs = await api.getProjects([idOrSlug]);
+  const proj = projs[0];
+  if (!proj) return { pack, error: "そのMODが見つかりませんでした。" };
+
+  if (entries.some((e) => e.project_id === proj.id)) {
+    return { pack, error: `${proj.title} はすでに構成に入っています。` };
+  }
+
+  const v = await api.getCompatibleVersion(proj.id, pack.loader, pack.version);
+  if (!v) {
+    return {
+      pack,
+      error: `${proj.title} は ${pack.version} / ${pack.loader} に対応するファイルがありません。`,
+    };
+  }
+
+  const role = getRole(inferRoleId(proj.categories)) || getRole("qol");
+  const entry = makeEntry(
+    {
+      project_id: proj.id,
+      slug: proj.slug,
+      title: proj.title,
+      description: proj.description,
+      downloads: proj.downloads,
+      icon_url: proj.icon_url,
+      categories: proj.categories,
+      client_side: proj.client_side,
+      server_side: proj.server_side,
+      author: "",
+    },
+    role
+  );
+  entry.reason = "手動で追加したMOD。";
+  entry.file = pickFile(v);
+  entry.requiredDeps = (v.dependencies || [])
+    .filter((d) => d.dependency_type === "required" && d.project_id)
+    .map((d) => ({ project_id: d.project_id }));
+
+  const known = new Set(entries.map((e) => e.project_id));
+  known.add(entry.project_id);
+  const newDeps = await resolveDeps(entry, pack, known);
+
+  const merged = [...entries, entry, ...newDeps.values()];
+  let next = recomputeFromEntries(pack, merged);
+  next = await fillDepTitles(next);
+  return { pack: recomputeDerived(next), error: "" };
+}
+
+function inferRoleId(categories) {
+  const cats = categories || [];
+  for (const roleId of CATEGORY_ORDER) {
+    const role = getRole(roleId);
+    if (role && role.facets && role.facets.length && role.facets.some((f) => cats.includes(f))) {
+      return roleId;
+    }
+  }
+  return "qol";
 }

@@ -1,1 +1,8 @@
-/*    /index.html   200
+# Each known route is emitted as a real HTML file by scripts/prerender.mjs
+# (dist/guide/index.html, dist/about/index.html, ...), so Cloudflare Pages
+# serves those directly — no rewrite needed, and each URL has its own title,
+# description and canonical.
+#
+# Everything else is genuinely missing. The previous catch-all rewrite to
+# index.html with a 200 turned every typo'd URL into a soft 404.
+/*    /404.html    404

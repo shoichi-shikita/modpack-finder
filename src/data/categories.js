@@ -14,6 +14,12 @@ export const FALLBACK_VERSIONS = [
   "1.19.4", "1.19.2", "1.18.2", "1.16.5", "1.12.2",
 ];
 
+// Versions most people actually play on. Shown in their own <optgroup> so the
+// ~100-entry list doesn't present 1.2.5 as an equally sensible choice.
+export const POPULAR_VERSIONS = [
+  "1.21.1", "1.20.1", "1.19.2", "1.18.2", "1.16.5", "1.12.2", "1.7.10",
+];
+
 // ROLES = the output categories of a pack.
 // facets: Modrinth `categories` values OR-joined for the role's search.
 // query:  extra full-text search keyword for the role (optional).
