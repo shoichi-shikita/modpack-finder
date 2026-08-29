@@ -1,4 +1,4 @@
-import { Info, ListChecks, HelpCircle, Layers3 } from "lucide-react";
+import { Info, ListChecks, HelpCircle, Layers3, BookOpenCheck } from "lucide-react";
 import { FAQ } from "../utils/seo";
 import { bevelOut, bevelIn } from "../utils/styles";
 import { SEO_LANDING_PAGES } from "../data/seoLandingPages";
@@ -65,7 +65,7 @@ export default function IntroSection() {
           {SEO_LANDING_PAGES.slice(0, 6).map((page) => (
             <a
               key={page.path}
-              href={page.path}
+              href={page.href}
               className="px-3 min-h-11 flex items-center bg-stone-800 text-[13px] text-lime-200 hover:text-lime-100 underline"
               style={bevelOut}
             >
@@ -73,9 +73,21 @@ export default function IntroSection() {
             </a>
           ))}
         </div>
-        <a href="/mods" className="inline-block mt-3 text-[13px] text-lime-300 hover:text-lime-200 underline">
+        <a href="/mods/" className="inline-block mt-3 text-[13px] text-lime-300 hover:text-lime-200 underline">
           すべてのMOD構成を見る →
         </a>
+      </section>
+
+      <section className="p-4 sm:p-5 mb-5" style={{ ...bevelOut, background: "#33333a" }}>
+        <div className="flex items-center gap-2 mb-3">
+          <BookOpenCheck className="w-5 h-5 text-lime-400" aria-hidden="true" />
+          <h2 className="text-[15px] font-bold tracking-wide">MOD導入で困ったとき</h2>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-2 text-[13px]">
+          <a href="/guide/" className="p-3 min-h-11 bg-stone-800 text-lime-200 underline" style={bevelOut}>.mrpackの導入手順</a>
+          <a href="/articles/loader-guide/" className="p-3 min-h-11 bg-stone-800 text-lime-200 underline" style={bevelOut}>ローダーの違いと選び方</a>
+          <a href="/articles/modpack-not-starting/" className="p-3 min-h-11 bg-stone-800 text-lime-200 underline" style={bevelOut}>起動しないときの確認順</a>
+        </div>
       </section>
 
       <section className="p-4 sm:p-5" style={{ ...bevelOut, background: "#33333a" }}>

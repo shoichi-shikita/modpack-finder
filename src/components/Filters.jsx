@@ -34,7 +34,7 @@ export default function Filters({
   }
 
   return (
-    <form onSubmit={submit} className="p-4 sm:p-5 mb-5" style={{ ...bevelOut, background: "#3a3a41" }}>
+    <form id="pack-builder" onSubmit={submit} className="p-4 sm:p-5 mb-5 scroll-mt-4" style={{ ...bevelOut, background: "#3a3a41" }}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div>
           <label

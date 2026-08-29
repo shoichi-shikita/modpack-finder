@@ -13,11 +13,12 @@ export default function Footer({ navigate }) {
 
   const LINKS = [
     ["/", "ホーム"],
-    ["/mods", "MOD構成一覧"],
-    ["/guide", "使い方ガイド"],
-    ["/about", "このツールについて"],
-    ["/privacy", "プライバシーポリシー"],
-    ["/contact", "お問い合わせ"],
+    ["/mods/", "MOD構成一覧"],
+    ["/articles/", "MOD導入ガイド"],
+    ["/guide/", "使い方ガイド"],
+    ["/about/", "このツールについて"],
+    ["/privacy/", "プライバシーポリシー"],
+    ["/contact/", "お問い合わせ"],
   ];
 
   return (

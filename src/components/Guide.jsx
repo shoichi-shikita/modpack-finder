@@ -78,14 +78,14 @@ export default function Guide({ onBack, navigate }) {
           <button
             type="button"
             onClick={onBack}
-            className="px-3 py-2 bg-stone-800 text-stone-200 text-xs flex items-center gap-1"
+            className="px-3 min-h-11 bg-stone-800 text-stone-200 text-xs flex items-center gap-1"
             style={bevelOut}
           >
             <ArrowLeft className="w-4 h-4" />
             戻る
           </button>
           <h1 className="text-xl sm:text-2xl font-bold tracking-widest uppercase leading-none">
-            使い方ガイド
+            .mrpackの使い方ガイド
           </h1>
         </div>
 
@@ -184,6 +184,18 @@ export default function Guide({ onBack, navigate }) {
             サーバー側にも同じMOD構成を入れる必要があります。サーバー向けの導入は少し手順が増えるので、
             まずはシングルプレイで動作を確認してからにすると安心です。
           </Faq>
+        </Panel>
+
+        <Panel>
+          <SectionTitle icon={HelpCircle}>あわせて読みたい</SectionTitle>
+          <div className="flex flex-col sm:flex-row gap-2 text-[13px]">
+            <a href="/articles/loader-guide/" className="px-3 min-h-11 bg-stone-800 text-lime-300 underline inline-flex items-center" style={bevelOut}>
+              Forge・Fabric・NeoForge・Quiltの違い
+            </a>
+            <a href="/articles/modpack-not-starting/" className="px-3 min-h-11 bg-stone-800 text-lime-300 underline inline-flex items-center" style={bevelOut}>
+              MODパックが起動しないとき
+            </a>
+          </div>
         </Panel>
 
         <div className="text-center mb-6">

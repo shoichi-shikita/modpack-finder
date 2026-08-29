@@ -15,6 +15,9 @@ import AdSlot from "./components/AdSlot";
 import IntroSection from "./components/IntroSection";
 import SeoLandingIntro from "./components/SeoLandingIntro";
 import ModsIndex from "./components/ModsIndex";
+import ArticlesIndex from "./components/ArticlesIndex";
+import LoaderGuide from "./components/LoaderGuide";
+import TroubleshootingGuide from "./components/TroubleshootingGuide";
 import { getGameVersions } from "./services/modrinth";
 import { buildPack, buildPackFromSlugs, packSignature } from "./utils/packBuilder";
 import { removeMod, swapMod, addMod } from "./utils/packEdit";
@@ -101,8 +104,9 @@ export default function App() {
 
   const navigate = useCallback((path) => {
     const p = normalizePath(path);
-    if (p !== normalizePath(window.location.pathname)) {
-      window.history.pushState({}, "", p);
+    const href = p === "/" ? "/" : `${p}/`;
+    if (href !== window.location.pathname) {
+      window.history.pushState({}, "", href);
     }
     setRoute(p);
     window.scrollTo(0, 0);
@@ -325,6 +329,9 @@ export default function App() {
   if (route === "/contact") return <Contact navigate={navigate} />;
   if (route === "/guide") return <Guide onBack={() => navigate("/")} navigate={navigate} />;
   if (route === "/mods") return <ModsIndex navigate={navigate} />;
+  if (route === "/articles") return <ArticlesIndex navigate={navigate} />;
+  if (route === "/articles/loader-guide") return <LoaderGuide navigate={navigate} />;
+  if (route === "/articles/modpack-not-starting") return <TroubleshootingGuide navigate={navigate} />;
 
   const isEmptyPack = pack && pack.categories.length === 0;
   const currentSignature = packSignature({ version, loader, themeIds, query, includePerformance });

@@ -3,6 +3,15 @@ import { landingPageForPath } from "../data/seoLandingPages.js";
 
 const BASE = SITE_CONFIG.siteUrl.replace(/\/+$/, "");
 
+export function publicPath(path) {
+  if (!path || path === "/") return "/";
+  return `${path.replace(/\/+$/, "")}/`;
+}
+
+export function absoluteRouteUrl(path) {
+  return `${BASE}${publicPath(path)}`;
+}
+
 // Per-route metadata. A single-page app that ships one index.html hands every
 // route the same <title>/<meta>/<link rel=canonical>, which tells Google the
 // sub-pages are duplicates of the home page. These are applied on navigation.
@@ -18,12 +27,36 @@ export const ROUTE_META = {
     description:
       ".mrpackファイルの中身と、Modrinth App / Prism Launcher への読み込み手順を画像なしで手短に解説。よくあるつまずき（起動しない・MODが入らない）への対処も掲載しています。",
     path: "/guide",
+    article: true,
+    heading: ".mrpackの使い方と導入手順",
   },
   "/mods": {
     title: "Minecraft MOD構成一覧｜バージョン・ローダー・テーマ別 - MOD PACK FINDER",
     description:
       "Minecraftの人気バージョン、Fabric・Forge・NeoForge、冒険・魔法・工業などのテーマ別にMOD構成を選べます。依存MODを解決して.mrpackで無料出力。",
     path: "/mods",
+  },
+  "/articles": {
+    title: "Minecraft MOD導入ガイド｜ローダー・mrpack・起動トラブル - MOD PACK FINDER",
+    description:
+      "Minecraft Java EditionのMOD導入ガイド。.mrpackの使い方、Forge・Fabric・NeoForge・Quiltの違い、MODパックが起動しない場合の確認順を解説します。",
+    path: "/articles",
+  },
+  "/articles/loader-guide": {
+    title: "Forge・Fabric・NeoForge・Quiltの違いと選び方 - MOD PACK FINDER",
+    description:
+      "Minecraftの4つのMod Loaderを比較。Forge、Fabric、NeoForge、Quiltの特徴と、軽量化・大型MOD・対応バージョンから選ぶ方法を解説します。",
+    path: "/articles/loader-guide",
+    article: true,
+    heading: "Forge・Fabric・NeoForge・Quiltの違いと選び方",
+  },
+  "/articles/modpack-not-starting": {
+    title: "MODパックが起動しない原因と確認順 - MOD PACK FINDER",
+    description:
+      "MinecraftのMODパックが起動しないときに、バージョン・ローダー・前提MOD・Java・メモリ・競合・ログを安全に切り分ける手順を解説します。",
+    path: "/articles/modpack-not-starting",
+    article: true,
+    heading: "MODパックが起動しない原因と確認順",
   },
   "/about": {
     title: "このツールについて - MOD PACK FINDER",
@@ -141,17 +174,24 @@ export function jsonLdForRoute(route, meta = routeMeta(route)) {
 
   if (route !== "/") {
     const landing = meta.landing;
+    const articleDetail = route.startsWith("/articles/");
     const crumbs = landing
       ? [
-          { name: "ホーム", item: `${BASE}/` },
-          { name: "MOD構成一覧", item: `${BASE}/mods` },
-          { name: `Minecraft ${landing.version}`, item: `${BASE}/mods` },
-          { name: `${landing.loaderLabel} ${landing.themeLabel}`, item: `${BASE}${landing.path}` },
+          { name: "ホーム", item: absoluteRouteUrl("/") },
+          { name: "MOD構成一覧", item: absoluteRouteUrl("/mods") },
+          { name: `Minecraft ${landing.version}`, item: absoluteRouteUrl("/mods") },
+          { name: `${landing.loaderLabel} ${landing.themeLabel}`, item: absoluteRouteUrl(landing.path) },
         ]
-      : [
-          { name: "ホーム", item: `${BASE}/` },
-          { name: meta.title.split(/[｜|]/)[0].trim(), item: `${BASE}${meta.path}` },
-        ];
+      : articleDetail
+        ? [
+            { name: "ホーム", item: absoluteRouteUrl("/") },
+            { name: "MOD導入ガイド", item: absoluteRouteUrl("/articles") },
+            { name: meta.heading || meta.title.split(/[｜|]/)[0].trim(), item: absoluteRouteUrl(meta.path) },
+          ]
+        : [
+            { name: "ホーム", item: absoluteRouteUrl("/") },
+            { name: meta.title.split(/[｜|]/)[0].trim(), item: absoluteRouteUrl(meta.path) },
+          ];
     out.push({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -168,7 +208,7 @@ export function jsonLdForRoute(route, meta = routeMeta(route)) {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       name: meta.landing.heading,
-      url: `${BASE}${meta.path}`,
+      url: absoluteRouteUrl(meta.path),
       inLanguage: "ja",
       description: meta.description,
       isPartOf: { "@type": "WebSite", name: SITE_CONFIG.siteName, url: `${BASE}/` },
@@ -177,6 +217,20 @@ export function jsonLdForRoute(route, meta = routeMeta(route)) {
         { "@type": "Thing", name: meta.landing.loaderLabel },
         { "@type": "Thing", name: meta.landing.themeLabel },
       ],
+    });
+  }
+
+  if (meta.article) {
+    out.push({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: meta.heading || meta.title.split(/[｜|]/)[0].trim(),
+      description: meta.description,
+      inLanguage: "ja",
+      mainEntityOfPage: absoluteRouteUrl(meta.path),
+      dateModified: SITE_CONFIG.lastUpdated,
+      author: { "@type": "Person", name: SITE_CONFIG.author || SITE_CONFIG.siteName },
+      publisher: { "@type": "Organization", name: SITE_CONFIG.siteName },
     });
   }
 
@@ -198,7 +252,7 @@ export function jsonLdForRoute(route, meta = routeMeta(route)) {
 // Apply title / description / canonical / OGP / JSON-LD for a route.
 export function applyRouteMeta(route) {
   const meta = routeMeta(route);
-  const url = `${BASE}${meta.path === "/" ? "/" : meta.path}`;
+  const url = absoluteRouteUrl(meta.path);
 
   document.title = meta.title;
   setMetaName("description", meta.description);

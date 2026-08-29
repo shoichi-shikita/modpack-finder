@@ -26,7 +26,7 @@ export default function ModsIndex({ navigate }) {
             {pages.map((page) => (
               <a
                 key={page.path}
-                href={page.path}
+                href={page.href}
                 className="block p-4 bg-stone-800 hover:bg-stone-700 text-stone-100"
                 style={bevelOut}
               >

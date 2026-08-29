@@ -21,7 +21,7 @@ export default function InfoPage({ title, navigate, children }) {
           <a
             href="/"
             onClick={home}
-            className="px-3 min-h-11 bg-stone-800 text-stone-100 text-[13px] inline-flex items-center gap-1 no-underline"
+            className="px-3 min-h-11 bg-stone-800 text-stone-100 text-[13px] inline-flex items-center gap-1 no-underline shrink-0 whitespace-nowrap"
             style={bevelOut}
           >
             <ArrowLeft className="w-4 h-4" aria-hidden="true" />
@@ -30,7 +30,7 @@ export default function InfoPage({ title, navigate, children }) {
           <div className="grid place-items-center w-9 h-9 bg-lime-700 shrink-0" style={bevelOut}>
             <Pickaxe className="w-5 h-5" aria-hidden="true" />
           </div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-widest uppercase leading-none">
+          <h1 className="text-base sm:text-xl font-bold tracking-widest uppercase leading-tight min-w-0">
             {title}
           </h1>
         </header>

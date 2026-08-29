@@ -13,13 +13,12 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { ROUTE_META, FAQ, jsonLdForRoute } from "../src/utils/seo.js";
+import { ROUTE_META, FAQ, absoluteRouteUrl, jsonLdForRoute } from "../src/utils/seo.js";
 import { SITE_CONFIG } from "../src/data/siteConfig.js";
 import { SEO_LANDING_PAGES } from "../src/data/seoLandingPages.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
-const BASE = SITE_CONFIG.siteUrl.replace(/\/+$/, "");
 
 const esc = (s) =>
   String(s)
@@ -40,7 +39,32 @@ const NOSCRIPT_BODY = {
     ${FAQ.map((f) => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join("\n    ")}`,
   "/mods": `<h1>Minecraft MOD構成一覧</h1>
     <p>人気のMinecraftバージョン、対応ローダー、遊びたいテーマから、条件設定済みのMOD構成ページを選べます。</p>
-    <ul>${SEO_LANDING_PAGES.map((page) => `<li><a href="${esc(page.path)}">Minecraft ${esc(page.version)} ${esc(page.loaderLabel)}・${esc(page.themeLabel)}</a></li>`).join("")}</ul>`,
+    <ul>${SEO_LANDING_PAGES.map((page) => `<li><a href="${esc(page.href)}">Minecraft ${esc(page.version)} ${esc(page.loaderLabel)}・${esc(page.themeLabel)}</a></li>`).join("")}</ul>`,
+  "/articles": `<h1>Minecraft MOD導入ガイド</h1>
+    <p>Minecraft Java EditionへMODを導入するときに迷いやすい用語、ローダー選び、起動トラブルをまとめています。</p>
+    <ul>
+      <li><a href="/guide/">.mrpackとは？導入手順</a></li>
+      <li><a href="/articles/loader-guide/">Forge・Fabric・NeoForge・Quiltの違い</a></li>
+      <li><a href="/articles/modpack-not-starting/">MODパックが起動しないときの確認順</a></li>
+    </ul>`,
+  "/articles/loader-guide": `<h1>Forge・Fabric・NeoForge・Quiltの違いと選び方</h1>
+    <p>Mod Loaderは、Minecraft本体とMODの間に入ってMODを読み込む仕組みです。同じMinecraftバージョン用でも、異なるローダー向けのMODは読み込めません。</p>
+    <h2>4つのローダーの特徴</h2>
+    <h3>Fabric</h3><p>軽量で更新が速く、軽量化・便利系MODが豊富です。</p>
+    <h3>Forge</h3><p>長い実績があり、特に1.20.1以前の大型MODが充実しています。</p>
+    <h3>NeoForge</h3><p>Forgeから分かれた新しいローダーで、1.20.1以降を中心に対応が広がっています。</p>
+    <h3>Quilt</h3><p>Fabricとの互換性を意識したローダーですが、使いたいMODが明示的に対応しているか確認が必要です。</p>
+    <p>まず使いたいMODを決め、すべてに共通するMinecraftバージョンとローダーを選んでください。</p>`,
+  "/articles/modpack-not-starting": `<h1>MODパックが起動しないときの確認順</h1>
+    <p>最初に既存ワールドをバックアップし、テスト用インスタンスで確認します。</p>
+    <ol>
+      <li>MinecraftバージョンとMod Loaderが一致しているか確認する</li>
+      <li>Fabric APIやArchitecturyなどの前提MODを確認する</li>
+      <li>推奨Javaとメモリ割り当てを確認する</li>
+      <li>描画・軽量化MODの重複を外す</li>
+      <li>直前に追加したMODから外し、半分ずつ切り分ける</li>
+    </ol>
+    <p>logs/latest.logとcrash-reportsの「requires」「missing」「incompatible」付近にあるMOD名が手がかりになります。</p>`,
   "/about": `<h1>このツールについて</h1>
     <p>MOD PACK FINDER は、Minecraft の MOD 探しと MODパックづくりを楽にするための無料のWebツールです。MOD情報は Modrinth の公開データ／APIを利用して取得しています。個人が開発・運営している非公式のファンツールであり、Mojang Studios、Microsoft、Modrinth とは提携していません。</p>`,
   "/privacy": `<h1>プライバシーポリシー</h1>
@@ -57,11 +81,14 @@ function noscriptBody(route, meta) {
     <p>${esc(page.versionNote)} ${esc(page.loaderNote)}</p>
     <h2>この構成の特徴</h2>
     <ul>${page.points.map((point) => `<li>${esc(point)}</li>`).join("")}</ul>
+    <h2>このテーマで候補になる代表MOD</h2>
+    <p>実際の構成では、Minecraftバージョンと${esc(page.loaderLabel)}に対応するファイルがあるかを生成時に確認します。</p>
+    ${page.representativeMods.map((mod) => `<h3>${esc(mod.name)}</h3><p>${esc(mod.note)}</p>`).join("")}
     <p>JavaScriptを有効にすると、条件を変更しながらMODを自動選定し、.mrpackとして書き出せます。</p>`;
 }
 
 function applyMeta(html, route, meta) {
-  const url = `${BASE}${route === "/" ? "/" : route}`;
+  const url = absoluteRouteUrl(route);
   let out = html;
 
   const swap = (re, next) => {
@@ -144,10 +171,11 @@ for (const [route, meta] of routes) {
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${routes.map(([route]) => {
-  const url = `${BASE}${route === "/" ? "/" : route}`;
+  const url = absoluteRouteUrl(route);
   const isLanding = route.startsWith("/mods/");
-  const priority = route === "/" ? "1.0" : route === "/mods" ? "0.9" : isLanding ? "0.8" : "0.4";
-  const changefreq = route === "/" || route === "/mods" || isLanding ? "weekly" : "yearly";
+  const isArticle = route === "/guide" || route.startsWith("/articles");
+  const priority = route === "/" ? "1.0" : route === "/mods" ? "0.9" : isLanding ? "0.8" : isArticle ? "0.7" : "0.4";
+  const changefreq = route === "/" || route === "/mods" || isLanding || isArticle ? "weekly" : "yearly";
   return `  <url>\n    <loc>${esc(url)}</loc>\n    <lastmod>${esc(SITE_CONFIG.lastUpdated)}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
 }).join("\n")}
 </urlset>
