@@ -1,9 +1,6 @@
-import { Search, Loader2, Trash2, Check } from "lucide-react";
 import { LOADERS, THEMES, POPULAR_VERSIONS } from "../data/categories";
 import { isLoaderSupported, loaderUnsupportedNote } from "../data/loaderSupport";
 import { bevelOut, bevelIn } from "../utils/styles";
-
-const CHIP = "px-3 min-h-11 text-[13px] transition-colors inline-flex items-center gap-1.5";
 
 export default function Filters({
   versions,
@@ -34,12 +31,13 @@ export default function Filters({
   }
 
   return (
-    <form id="pack-builder" onSubmit={submit} className="p-4 sm:p-5 mb-5 scroll-mt-4" style={{ ...bevelOut, background: "#3a3a41" }}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+    <form id="pack-builder" onSubmit={submit} className="filter-panel scroll-mt-4" >
+      <h2 className="filter-title">構成の条件</h2>
+      <div className="filter-fields grid gap-4 mb-4">
         <div>
           <label
             htmlFor="mpf-version"
-            className="block text-[12px] uppercase tracking-wider text-stone-300"
+            className="block text-[12px]   text-stone-300"
           >
             バージョン
           </label>
@@ -47,7 +45,7 @@ export default function Filters({
             id="mpf-version"
             value={version}
             onChange={(e) => onVersionChange(e.target.value)}
-            className="mt-1 w-full bg-stone-900 text-stone-100 px-3 min-h-11 outline-none appearance-none text-[13px]"
+            className="mt-1 w-full bg-stone-900 text-stone-100 px-3 min-h-11 outline-none text-[13px]"
             style={bevelIn}
           >
             {popular.length > 0 && (
@@ -66,7 +64,7 @@ export default function Filters({
         </div>
 
         <div>
-          <span id="mpf-loader-label" className="block text-[12px] uppercase tracking-wider text-stone-300">
+          <span id="mpf-loader-label" className="block text-[12px]   text-stone-300">
             ローダー
           </span>
           <div
@@ -78,22 +76,11 @@ export default function Filters({
               const supported = isLoaderSupported(l.id, version);
               const on = loader === l.id;
               return (
-                <button
-                  key={l.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={on}
-                  disabled={!supported}
-                  title={supported ? undefined : loaderUnsupportedNote(l.id)}
-                  onClick={() => onLoaderChange(l.id)}
-                  className={`${CHIP} ${
-                    on ? "bg-lime-700 text-white" : "bg-stone-800 text-stone-200"
-                  } disabled:opacity-35 disabled:cursor-not-allowed`}
-                  style={on ? bevelIn : bevelOut}
-                >
-                  {on && <Check className="w-3.5 h-3.5" aria-hidden="true" />}
-                  {l.label}
-                </button>
+                <label key={l.id} className="filter-choice" title={supported ? undefined : loaderUnsupportedNote(l.id)}>
+                  <input type="radio" name="loader" value={l.id} checked={on} disabled={!supported}
+                    onChange={() => onLoaderChange(l.id)} />
+                  <span>{l.label}</span>
+                </label>
               );
             })}
           </div>
@@ -106,30 +93,17 @@ export default function Filters({
       </div>
 
       <fieldset className="mb-4 border-0 p-0 m-0">
-        <legend className="text-[12px] uppercase tracking-wider text-stone-300 p-0">
-          このワールドでやりたいこと（複数OK）
+        <legend className="text-[12px]   text-stone-300 p-0">
+          テーマ（複数選択）
         </legend>
         <div className="mt-2 flex flex-wrap gap-2">
           {THEMES.map((t) => {
             const on = themeIds.includes(t.id);
             return (
-              <button
-                key={t.id}
-                type="button"
-                aria-pressed={on}
-                onClick={() => onToggleTheme(t.id)}
-                className={`${CHIP} ${
-                  on ? "bg-lime-700 text-white" : "bg-stone-800 text-stone-200"
-                }`}
-                style={on ? bevelIn : bevelOut}
-              >
-                {on ? (
-                  <Check className="w-3.5 h-3.5" aria-hidden="true" />
-                ) : (
-                  <span aria-hidden="true">{t.emoji}</span>
-                )}
-                {t.label}
-              </button>
+              <label key={t.id} className="filter-choice">
+                <input type="checkbox" checked={on} onChange={() => onToggleTheme(t.id)} />
+                <span>{t.label}</span>
+              </label>
             );
           })}
         </div>
@@ -138,9 +112,9 @@ export default function Filters({
       <div className="mb-4">
         <label
           htmlFor="mpf-keyword"
-          className="block text-[12px] uppercase tracking-wider text-stone-300"
+          className="block text-[12px]   text-stone-300"
         >
-          こだわりキーワード（任意）
+          キーワード（任意）
         </label>
         <input
           id="mpf-keyword"
@@ -165,8 +139,8 @@ export default function Filters({
           className="mt-0.5 w-4 h-4 accent-lime-500 shrink-0"
         />
         <span className="text-[13px] text-stone-200">
-          おすすめの軽量化MODも一緒に入れる
-          <span className="text-stone-400">（推奨・FPSが安定します）</span>
+          軽量化MODを含める
+
         </span>
       </label>
 
@@ -180,10 +154,10 @@ export default function Filters({
         <button
           type="submit"
           disabled={loading}
-          className="px-6 min-h-12 bg-lime-600 text-white font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+          className="px-6 min-h-12 bg-lime-600 text-white font-bold   text-sm flex items-center justify-center gap-2 disabled:opacity-60"
           style={bevelOut}
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+
           {loading ? "構成を組み立てています…" : "この条件で構成を作る"}
         </button>
 
@@ -194,7 +168,7 @@ export default function Filters({
           className="px-4 min-h-12 bg-stone-800 text-stone-200 text-sm flex items-center gap-2 disabled:opacity-40"
           style={bevelOut}
         >
-          <Trash2 className="w-4 h-4" />
+
           構成をクリア
         </button>
       </div>

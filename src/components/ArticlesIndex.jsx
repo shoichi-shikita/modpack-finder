@@ -2,6 +2,7 @@ import InfoPage from "./InfoPage";
 import { bevelOut } from "../utils/styles";
 
 const ARTICLES = [
+  { href: "/articles/how-we-build-packs/", title: "MODの選定方法と確認できる範囲", description: "候補の優先順位、依存関係の処理、実際のファイル照合例と自動確認の限界。" },
   {
     href: "/guide/",
     title: ".mrpackとは？導入手順",

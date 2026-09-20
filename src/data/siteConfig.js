@@ -20,7 +20,7 @@ export const SITE_CONFIG = {
   adsStatus: "pending",
   adsenseClient: "ca-pub-8989190444093252",
 
-  lastUpdated: "2026-08-29",
+  lastUpdated: "2026-09-20",
 };
 
 export const hasContactChannel = () =>

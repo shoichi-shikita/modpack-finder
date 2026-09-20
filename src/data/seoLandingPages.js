@@ -1,3 +1,4 @@
+import verified from "./verifiedExamples.json" with { type: "json" };
 import { LOADERS, THEMES } from "./categories.js";
 import { noteFor } from "./modNotes.js";
 
@@ -51,8 +52,8 @@ const THEME_COPY = {
     mods: [
       ["create", "Create"],
       ["mekanism", "Mekanism"],
-      ["applied-energistics-2", "Applied Energistics 2"],
-      ["immersive-engineering", "Immersive Engineering"],
+      ["ae2", "Applied Energistics 2"],
+      ["immersiveengineering", "Immersive Engineering"],
       ["modern-industrialization", "Modern Industrialization"],
     ],
   },
@@ -63,7 +64,7 @@ const THEME_COPY = {
     mods: [
       ["sodium", "Sodium"],
       ["lithium", "Lithium"],
-      ["ferritecore", "FerriteCore"],
+      ["ferrite-core", "FerriteCore"],
       ["entityculling", "Entity Culling"],
       ["modernfix", "ModernFix"],
     ],
@@ -76,7 +77,7 @@ const THEME_COPY = {
       ["alexs-mobs", "Alex's Mobs"],
       ["friends-and-foes", "Friends & Foes"],
       ["naturalist", "Naturalist"],
-      ["cataclysm", "L_Ender's Cataclysm"],
+      ["l_enders-cataclysm", "L_Ender's Cataclysm"],
       ["guard-villagers", "Guard Villagers"],
     ],
   },
@@ -129,6 +130,8 @@ export const SEO_LANDING_PAGES = PAGE_SPECS.map(([version, loader, theme]) => {
     versionNote: VERSION_COPY[version] || "選んだMinecraftバージョンに対応するファイルを確認します。",
     loaderNote: LOADER_COPY[loader] || `${loaderLabel}向けファイルがあるMODだけを候補にします。`,
     points: copy.points,
+    checkedAt: verified.checkedAt,
+    checkedMods: verified.checks[path] || [],
     representativeMods: copy.mods.map(([slug, name]) => ({
       slug,
       name,

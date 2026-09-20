@@ -56,7 +56,7 @@ export const CURATED = {
   ],
   mobs: [
     "alexs-mobs", "friends-and-foes", "naturalist", "born-in-chaos",
-    "mutant-monsters", "cataclysm", "guard-villagers",
+    "mutant-monsters", "l_enders-cataclysm", "guard-villagers",
   ],
   combat: [
     "bettercombat", "better-combat", "simply-swords", "mythicmetals",
@@ -67,7 +67,7 @@ export const CURATED = {
     "malum", "spell-engine",
   ],
   tech: [
-    "create", "mekanism", "applied-energistics-2", "immersive-engineering",
+    "create", "mekanism", "ae2", "immersiveengineering",
     "industrial-foregoing", "modern-industrialization", "refined-storage",
   ],
   storage: [
@@ -87,7 +87,7 @@ export const CURATED = {
     "macaws-roofs", "macaws-bridges", "decorative-blocks", "framed-blocks",
   ],
   performance: [
-    "sodium", "lithium", "ferritecore", "entityculling", "modernfix",
+    "sodium", "lithium", "ferrite-core", "entityculling", "modernfix",
     "immediatelyfast", "memoryleakfix", "embeddium",
   ],
 };

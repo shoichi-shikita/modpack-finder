@@ -16,10 +16,11 @@ export function absoluteRouteUrl(path) {
 // route the same <title>/<meta>/<link rel=canonical>, which tells Google the
 // sub-pages are duplicates of the home page. These are applied on navigation.
 export const ROUTE_META = {
+  "/articles/how-we-build-packs": { title: "MODの選定方法と確認できる範囲 - MOD PACK FINDER", description: "役割別の候補選定、依存関係の処理、ファイル照合の実例と自動確認の限界を説明します。", path: "/articles/how-we-build-packs", article: true, heading: "MODの選定方法と確認できる範囲" },
   "/": {
     title: "マイクラMOD構成を自動作成｜.mrpack出力 - MOD PACK FINDER",
     description:
-      "Minecraftのバージョン・Mod Loader・遊びたいテーマを選ぶだけで、依存MODまで解決したMOD構成を自動作成。.mrpackで書き出してModrinth App / Prism Launcherにドラッグするだけ。登録不要・無料。",
+      "Minecraftのバージョン・Mod Loader・遊びたいテーマを選ぶだけで、必須の依存MODも確認したMOD構成を自動作成。.mrpackで書き出してModrinth App / Prism Launcherにドラッグするだけ。登録不要・無料。",
     path: "/",
   },
   "/guide": {
@@ -33,7 +34,7 @@ export const ROUTE_META = {
   "/mods": {
     title: "Minecraft MOD構成一覧｜バージョン・ローダー・テーマ別 - MOD PACK FINDER",
     description:
-      "Minecraftの人気バージョン、Fabric・Forge・NeoForge、冒険・魔法・工業などのテーマ別にMOD構成を選べます。依存MODを解決して.mrpackで無料出力。",
+      "Minecraftの人気バージョン、Fabric・Forge・NeoForge、冒険・魔法・工業などのテーマ別にMOD構成を選べます。依存MODを確認して.mrpackで無料出力。",
     path: "/mods",
   },
   "/articles": {
@@ -101,7 +102,7 @@ export const FAQ = [
   },
   {
     q: "料金はかかりますか？",
-    a: "無料です。会員登録もアカウント作成も不要で、入力内容がサーバーに送信されることもありません。",
+    a: "無料で、会員登録は不要です。検索語や選択条件はMOD情報の取得時にModrinthへ送信されます。詳しくはプライバシーポリシーをご確認ください。",
   },
 ];
 
@@ -231,18 +232,6 @@ export function jsonLdForRoute(route, meta = routeMeta(route)) {
       dateModified: SITE_CONFIG.lastUpdated,
       author: { "@type": "Person", name: SITE_CONFIG.author || SITE_CONFIG.siteName },
       publisher: { "@type": "Organization", name: SITE_CONFIG.siteName },
-    });
-  }
-
-  if (route === "/guide") {
-    out.push({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: FAQ.map((f) => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
-      })),
     });
   }
 

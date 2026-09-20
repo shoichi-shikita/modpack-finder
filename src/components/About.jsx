@@ -28,6 +28,11 @@ export default function About({ navigate }) {
         </ul>
       </Section>
 
+      <Section title="運営者と選定方針">
+        <p>運営・開発：{SITE_CONFIG.author}。連絡先は <a href="/contact/" className="underline">お問い合わせ</a>に掲載しています。</p>
+        <p>公開ファイルの対応条件を確認するツールであり、生成した組み合わせをMinecraft上で起動試験したものではありません。</p>
+        <p><a href="/articles/how-we-build-packs/" className="underline">MODの選び方・依存関係の処理・確認できないこと</a>を公開しています。</p>
+      </Section>
       <Section title="データについて">
         <p>
           MODの情報（名前・説明・ダウンロード数・対応バージョン・依存関係など）は、

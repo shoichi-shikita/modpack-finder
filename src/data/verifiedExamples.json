@@ -1,0 +1,449 @@
+{
+  "checkedAt": "2026-09-20",
+  "checks": {
+    "/mods/1.21.1/fabric/adventure": [
+      {
+        "slug": "waystones",
+        "name": "Waystones",
+        "note": "ワープ地点（ウェイストーン）を設置して長距離移動を短縮します。探索の往復が激減します。",
+        "versionId": "kcpLmG41",
+        "versionNumber": "21.1.45+fabric-1.21.1"
+      },
+      {
+        "slug": "xaeros-minimap",
+        "name": "Xaero's Minimap",
+        "note": "画面隅にミニマップを表示。ウェイポイントを打って拠点や洞窟の位置を記録できます。",
+        "versionId": "ZD6hK4GV",
+        "versionNumber": "fabric-1.21.1-26.5.0"
+      },
+      {
+        "slug": "terralith",
+        "name": "Terralith",
+        "note": "バニラの生成をベースに、100種類以上の地形・バイオームを追加します。導入は新規ワールド推奨。",
+        "versionId": "eWDLFabb",
+        "versionNumber": "2.6.2"
+      },
+      {
+        "slug": "dungeons-and-taverns",
+        "name": "Dungeons and Taverns",
+        "note": "村や地下に酒場・ダンジョンを追加。バニラの雰囲気に馴染むデザインです。",
+        "versionId": "EUlNXs9V",
+        "versionNumber": "v4.4.4+mod"
+      },
+      {
+        "slug": "natures-compass",
+        "name": "Nature's Compass",
+        "note": "指定したバイオームの位置を探し出せるコンパス。",
+        "versionId": "dtrDpgsF",
+        "versionNumber": "1.21.1-2.6.0-fabric"
+      }
+    ],
+    "/mods/1.21.1/fabric/magic": [
+      {
+        "slug": "ars-nouveau",
+        "name": "Ars Nouveau",
+        "note": "自分で呪文を組み立てられる魔法MOD。魔法系の入門としても定番です。",
+        "versionId": null,
+        "versionNumber": null
+      },
+      {
+        "slug": "irons-spells-n-spellbooks",
+        "name": "Iron's Spells 'n Spellbooks",
+        "note": "呪文書とマナで戦うアクション寄りの魔法MOD。",
+        "versionId": null,
+        "versionNumber": null
+      },
+      {
+        "slug": "botania",
+        "name": "Botania",
+        "note": "花と自然の力を使う魔法MOD。工業に近い自動化要素も持ちます。",
+        "versionId": null,
+        "versionNumber": null
+      },
+      {
+        "slug": "occultism",
+        "name": "Occultism",
+        "note": "悪魔召喚と儀式をテーマにした魔法MOD。使い魔による自動化もできます。",
+        "versionId": null,
+        "versionNumber": null
+      },
+      {
+        "slug": "spell-engine",
+        "name": "Spell Engine",
+        "note": "呪文の詠唱・効果を扱う魔法フレームワーク。対応MODと組み合わせて使います。",
+        "versionId": "NdvqjxX1",
+        "versionNumber": "1.10.7+1.21.1-fabric"
+      }
+    ],
+    "/mods/1.21.1/fabric/tech": [
+      {
+        "slug": "create",
+        "name": "Create",
+        "note": "歯車とベルトで動く機械を組む工業MOD。見た目の面白さと自由度が高く、工業系の入門に最適です。",
+        "versionId": null,
+        "versionNumber": null
+      },
+      {
+        "slug": "mekanism",
+        "name": "Mekanism",
+        "note": "発電から鉱石5倍化までを扱う大規模工業MOD。終盤には核融合まであります。",
+        "versionId": null,
+        "versionNumber": null
+      },
+      {
+        "slug": "ae2",
+        "name": "Applied Energistics 2",
+        "note": "アイテムをデジタル化して一元管理する収納・自動化MOD。中〜上級者向け。",
+        "versionId": null,
+        "versionNumber": null
+      },
+      {
+        "slug": "immersiveengineering",
+        "name": "Immersive Engineering",
+        "note": "現実的な見た目の重厚な機械と送電網を追加する工業MOD。",
+        "versionId": null,
+        "versionNumber": null
+      },
+      {
+        "slug": "modern-industrialization",
+        "name": "Modern Industrialization",
+        "note": "現代的な工場ラインを組む工業MOD。加工の多段化が特徴です。",
+        "versionId": null,
+        "versionNumber": null
+      }
+    ],
+    "/mods/1.21.1/fabric/light": [
+      {
+        "slug": "sodium",
+        "name": "Sodium",
+        "note": "描画エンジンを置き換え、FPSを大幅に改善します。軽量化の第一候補。",
+        "versionId": "SMxNOGZ6",
+        "versionNumber": "mc1.21.1-0.8.13-fabric"
+      },
+      {
+        "slug": "lithium",
+        "name": "Lithium",
+        "note": "サーバー側（ゲームロジック）の処理を最適化します。見た目は変わりません。",
+        "versionId": "N08Z8wog",
+        "versionNumber": "mc1.21.1-0.15.4-fabric"
+      },
+      {
+        "slug": "ferrite-core",
+        "name": "FerriteCore",
+        "note": "メモリ使用量を削減します。MODを大量に入れるほど効きます。",
+        "versionId": "sOzRw3CG",
+        "versionNumber": "7.0.3-fabric"
+      },
+      {
+        "slug": "entityculling",
+        "name": "Entity Culling",
+        "note": "見えていないブロック・エンティティの描画を省いて軽量化します。",
+        "versionId": "1IyMQfxb",
+        "versionNumber": "1.11.0"
+      },
+      {
+        "slug": "modernfix",
+        "name": "ModernFix",
+        "note": "起動時間・メモリ・各種処理をまとめて改善する総合最適化MOD。",
+        "versionId": "NnNX8LBn",
+        "versionNumber": "5.25.1+mc1.21.1"
+      }
+    ],
+    "/mods/1.21.1/neoforge/adventure": [
+      {
+        "slug": "waystones",
+        "name": "Waystones",
+        "note": "ワープ地点（ウェイストーン）を設置して長距離移動を短縮します。探索の往復が激減します。",
+        "versionId": "Is55014l",
+        "versionNumber": "21.1.45+neoforge-1.21.1"
+      },
+      {
+        "slug": "xaeros-minimap",
+        "name": "Xaero's Minimap",
+        "note": "画面隅にミニマップを表示。ウェイポイントを打って拠点や洞窟の位置を記録できます。",
+        "versionId": "Q1tuMQBB",
+        "versionNumber": "neoforge-1.21.1-26.5.0"
+      },
+      {
+        "slug": "terralith",
+        "name": "Terralith",
+        "note": "バニラの生成をベースに、100種類以上の地形・バイオームを追加します。導入は新規ワールド推奨。",
+        "versionId": "IY93YaEe",
+        "versionNumber": "2.6.2"
+      },
+      {
+        "slug": "dungeons-and-taverns",
+        "name": "Dungeons and Taverns",
+        "note": "村や地下に酒場・ダンジョンを追加。バニラの雰囲気に馴染むデザインです。",
+        "versionId": "BYUUUeZA",
+        "versionNumber": "v4.4.4+mod"
+      },
+      {
+        "slug": "natures-compass",
+        "name": "Nature's Compass",
+        "note": "指定したバイオームの位置を探し出せるコンパス。",
+        "versionId": "nFniEtJV",
+        "versionNumber": "1.21.1-3.4.0-neoforge"
+      }
+    ],
+    "/mods/1.21.1/neoforge/mobs": [
+      {
+        "slug": "alexs-mobs",
+        "name": "Alex's Mobs",
+        "note": "個性的な動物・モンスターを80種類以上追加する大型Mob MOD。",
+        "versionId": null,
+        "versionNumber": null
+      },
+      {
+        "slug": "friends-and-foes",
+        "name": "Friends & Foes",
+        "note": "Minecraft Liveで落選したMob（コッパーゴーレム等）を実装します。",
+        "versionId": null,
+        "versionNumber": null
+      },
+      {
+        "slug": "naturalist",
+        "name": "Naturalist",
+        "note": "バニラの世界に馴染む野生動物と、その生態を追加します。",
+        "versionId": "BLB7ktFs",
+        "versionNumber": "2.0.3+1.21.1-neoforge"
+      },
+      {
+        "slug": "l_enders-cataclysm",
+        "name": "L_Ender's Cataclysm",
+        "note": "高難度のボスと専用ダンジョンを追加する終盤向けMOD。",
+        "versionId": "mYBUDZWl",
+        "versionNumber": "3.33"
+      },
+      {
+        "slug": "guard-villagers",
+        "name": "Guard Villagers",
+        "note": "村を守る衛兵を追加。村人の生存率が上がります。",
+        "versionId": "JyXugpy2",
+        "versionNumber": "2.4.12"
+      }
+    ],
+    "/mods/1.20.1/forge/adventure": [
+      {
+        "slug": "waystones",
+        "name": "Waystones",
+        "note": "ワープ地点（ウェイストーン）を設置して長距離移動を短縮します。探索の往復が激減します。",
+        "versionId": "Y0IgdaoP",
+        "versionNumber": "14.1.21+forge-1.20.1"
+      },
+      {
+        "slug": "xaeros-minimap",
+        "name": "Xaero's Minimap",
+        "note": "画面隅にミニマップを表示。ウェイポイントを打って拠点や洞窟の位置を記録できます。",
+        "versionId": "Juh6inLY",
+        "versionNumber": "forge-1.20.1-26.5.0"
+      },
+      {
+        "slug": "terralith",
+        "name": "Terralith",
+        "note": "バニラの生成をベースに、100種類以上の地形・バイオームを追加します。導入は新規ワールド推奨。",
+        "versionId": "WeYhEb5d",
+        "versionNumber": "2.5.4"
+      },
+      {
+        "slug": "dungeons-and-taverns",
+        "name": "Dungeons and Taverns",
+        "note": "村や地下に酒場・ダンジョンを追加。バニラの雰囲気に馴染むデザインです。",
+        "versionId": "ojHpWOrz",
+        "versionNumber": "3.0.3.f+mod"
+      },
+      {
+        "slug": "natures-compass",
+        "name": "Nature's Compass",
+        "note": "指定したバイオームの位置を探し出せるコンパス。",
+        "versionId": "eRSDvCjN",
+        "versionNumber": "1.20.1-1.12.0-forge"
+      }
+    ],
+    "/mods/1.20.1/forge/magic": [
+      {
+        "slug": "ars-nouveau",
+        "name": "Ars Nouveau",
+        "note": "自分で呪文を組み立てられる魔法MOD。魔法系の入門としても定番です。",
+        "versionId": "Hw2aD01e",
+        "versionNumber": "4.12.7"
+      },
+      {
+        "slug": "irons-spells-n-spellbooks",
+        "name": "Iron's Spells 'n Spellbooks",
+        "note": "呪文書とマナで戦うアクション寄りの魔法MOD。",
+        "versionId": "hZaEegS9",
+        "versionNumber": "1.20.1-3.16.3"
+      },
+      {
+        "slug": "botania",
+        "name": "Botania",
+        "note": "花と自然の力を使う魔法MOD。工業に近い自動化要素も持ちます。",
+        "versionId": "npY4sRWF",
+        "versionNumber": "1.20.1-456-forge"
+      },
+      {
+        "slug": "occultism",
+        "name": "Occultism",
+        "note": "悪魔召喚と儀式をテーマにした魔法MOD。使い魔による自動化もできます。",
+        "versionId": "hs5pHmiU",
+        "versionNumber": "1.20.1-1.158.0"
+      },
+      {
+        "slug": "spell-engine",
+        "name": "Spell Engine",
+        "note": "呪文の詠唱・効果を扱う魔法フレームワーク。対応MODと組み合わせて使います。",
+        "versionId": "q5VkMSzl",
+        "versionNumber": "1.10.6+1.20.1-forge"
+      }
+    ],
+    "/mods/1.20.1/forge/tech": [
+      {
+        "slug": "create",
+        "name": "Create",
+        "note": "歯車とベルトで動く機械を組む工業MOD。見た目の面白さと自由度が高く、工業系の入門に最適です。",
+        "versionId": "8amzvn9x",
+        "versionNumber": "mc1.20.1-6.0.8"
+      },
+      {
+        "slug": "mekanism",
+        "name": "Mekanism",
+        "note": "発電から鉱石5倍化までを扱う大規模工業MOD。終盤には核融合まであります。",
+        "versionId": "uxe1WQp4",
+        "versionNumber": "10.4.16.80"
+      },
+      {
+        "slug": "ae2",
+        "name": "Applied Energistics 2",
+        "note": "アイテムをデジタル化して一元管理する収納・自動化MOD。中〜上級者向け。",
+        "versionId": "7KVs6HMQ",
+        "versionNumber": "15.4.10"
+      },
+      {
+        "slug": "immersiveengineering",
+        "name": "Immersive Engineering",
+        "note": "現実的な見た目の重厚な機械と送電網を追加する工業MOD。",
+        "versionId": "WUzj4tgJ",
+        "versionNumber": "10.2.0-183"
+      },
+      {
+        "slug": "modern-industrialization",
+        "name": "Modern Industrialization",
+        "note": "現代的な工場ラインを組む工業MOD。加工の多段化が特徴です。",
+        "versionId": null,
+        "versionNumber": null
+      }
+    ],
+    "/mods/1.20.1/forge/mobs": [
+      {
+        "slug": "alexs-mobs",
+        "name": "Alex's Mobs",
+        "note": "個性的な動物・モンスターを80種類以上追加する大型Mob MOD。",
+        "versionId": "XoIASRVU",
+        "versionNumber": "1.22.9"
+      },
+      {
+        "slug": "friends-and-foes",
+        "name": "Friends & Foes",
+        "note": "Minecraft Liveで落選したMob（コッパーゴーレム等）を実装します。",
+        "versionId": null,
+        "versionNumber": null
+      },
+      {
+        "slug": "naturalist",
+        "name": "Naturalist",
+        "note": "バニラの世界に馴染む野生動物と、その生態を追加します。",
+        "versionId": "wnR21jg1",
+        "versionNumber": "5.0pre4+forge-1.20.1"
+      },
+      {
+        "slug": "l_enders-cataclysm",
+        "name": "L_Ender's Cataclysm",
+        "note": "高難度のボスと専用ダンジョンを追加する終盤向けMOD。",
+        "versionId": "C3H0azzB",
+        "versionNumber": "3.31"
+      },
+      {
+        "slug": "guard-villagers",
+        "name": "Guard Villagers",
+        "note": "村を守る衛兵を追加。村人の生存率が上がります。",
+        "versionId": "zCzBkn3R",
+        "versionNumber": "1.6.19"
+      }
+    ],
+    "/mods/1.20.1/fabric/qol": [
+      {
+        "slug": "jei",
+        "name": "Just Enough Items (JEI)",
+        "note": "レシピと用途を検索できるアイテム事典。MOD環境ではほぼ必須です。",
+        "versionId": "l4UV8hII",
+        "versionNumber": "15.59.0.212"
+      },
+      {
+        "slug": "emi",
+        "name": "EMI",
+        "note": "JEIの後継的なレシピ表示MOD。動作が軽く、作成ツリー表示が便利です。",
+        "versionId": "YbXDHf8W",
+        "versionNumber": "1.1.24+1.20.1+fabric"
+      },
+      {
+        "slug": "jade",
+        "name": "Jade",
+        "note": "見ているブロックやMobの情報を画面上に表示します。",
+        "versionId": "ahavHbAT",
+        "versionNumber": "11.13.3+fabric"
+      },
+      {
+        "slug": "appleskin",
+        "name": "AppleSkin",
+        "note": "満腹度と隠し数値（隠し満腹度）を可視化します。",
+        "versionId": "N5XeV21r",
+        "versionNumber": "2.5.2+mc1.20.1"
+      },
+      {
+        "slug": "mouse-tweaks",
+        "name": "Mouse Tweaks",
+        "note": "インベントリ操作をドラッグやスクロールで高速化します。",
+        "versionId": "mjuG4AYd",
+        "versionNumber": "1.20-2.26-fabric"
+      }
+    ],
+    "/mods/1.19.2/forge/adventure": [
+      {
+        "slug": "waystones",
+        "name": "Waystones",
+        "note": "ワープ地点（ウェイストーン）を設置して長距離移動を短縮します。探索の往復が激減します。",
+        "versionId": "SybGnSuC",
+        "versionNumber": "11.4.2+forge-1.19.2"
+      },
+      {
+        "slug": "xaeros-minimap",
+        "name": "Xaero's Minimap",
+        "note": "画面隅にミニマップを表示。ウェイポイントを打って拠点や洞窟の位置を記録できます。",
+        "versionId": "VXZD4M1S",
+        "versionNumber": "forge-1.19.2-26.5.0"
+      },
+      {
+        "slug": "terralith",
+        "name": "Terralith",
+        "note": "バニラの生成をベースに、100種類以上の地形・バイオームを追加します。導入は新規ワールド推奨。",
+        "versionId": "FOe2l0tx",
+        "versionNumber": "2.3.12"
+      },
+      {
+        "slug": "dungeons-and-taverns",
+        "name": "Dungeons and Taverns",
+        "note": "村や地下に酒場・ダンジョンを追加。バニラの雰囲気に馴染むデザインです。",
+        "versionId": "WfuA1Ai8",
+        "versionNumber": "2.0.2+mod"
+      },
+      {
+        "slug": "natures-compass",
+        "name": "Nature's Compass",
+        "note": "指定したバイオームの位置を探し出せるコンパス。",
+        "versionId": "N4ONofeB",
+        "versionNumber": "1.19.2-1.10.0-forge"
+      }
+    ]
+  }
+}

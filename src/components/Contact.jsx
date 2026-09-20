@@ -1,9 +1,8 @@
-import { Mail, ExternalLink, FileText, Bug } from "lucide-react";
 import InfoPage, { Section } from "./InfoPage";
 import { SITE_CONFIG, hasContactChannel } from "../data/siteConfig";
 import { bevelOut } from "../utils/styles";
 
-function Channel({ icon: Icon, href, children, external }) {
+function Channel({ href, children, external }) {
   return (
     <a
       href={href}
@@ -11,7 +10,7 @@ function Channel({ icon: Icon, href, children, external }) {
       className="px-3 min-h-12 bg-stone-800 text-stone-100 text-[14px] inline-flex items-center gap-2 w-fit no-underline"
       style={bevelOut}
     >
-      <Icon className="w-4 h-4 text-lime-400" aria-hidden="true" />
+
       {children}
     </a>
   );
@@ -40,22 +39,22 @@ export default function Contact({ navigate }) {
         {hasContactChannel() ? (
           <div className="flex flex-col gap-2">
             {contactFormUrl && (
-              <Channel icon={FileText} href={contactFormUrl} external>
+              <Channel href={contactFormUrl} external>
                 お問い合わせフォーム
               </Channel>
             )}
             {contactEmail && (
-              <Channel icon={Mail} href={`mailto:${contactEmail}`}>
+              <Channel href={`mailto:${contactEmail}`}>
                 {contactEmail}
               </Channel>
             )}
             {githubUrl && (
-              <Channel icon={Bug} href={`${githubUrl.replace(/\/+$/, "")}/issues`} external>
+              <Channel href={`${githubUrl.replace(/\/+$/, "")}/issues`} external>
                 GitHub Issues で報告する
               </Channel>
             )}
             {xUrl && (
-              <Channel icon={ExternalLink} href={xUrl} external>
+              <Channel href={xUrl} external>
                 X（旧Twitter）で連絡する
               </Channel>
             )}

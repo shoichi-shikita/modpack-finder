@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Plus, Loader2, Search } from "lucide-react";
 import { searchProjects } from "../services/modrinth";
 import { fmtShort } from "../utils/format";
 import { bevelIn, bevelOut } from "../utils/styles";
@@ -56,23 +55,23 @@ export default function AddModBox({ version, loader, onAdd }) {
         className="w-full mb-5 px-4 min-h-12 bg-stone-800 text-stone-100 text-[13px] flex items-center justify-center gap-2"
         style={bevelOut}
       >
-        <Plus className="w-4 h-4 text-lime-400" />
+
         入れたいMODを追加する
       </button>
     );
   }
 
   return (
-    <div className="mb-5 p-4 sm:p-5" style={{ ...bevelOut, background: "#33333a" }}>
+    <div className="mb-5 p-4 sm:p-5" style={{ ...bevelOut, background: "#202224" }}>
       <div className="flex items-center gap-2 mb-3">
-        <Plus className="w-5 h-5 text-lime-400" />
-        <h3 className="text-[15px] font-bold tracking-wide">MODを追加</h3>
+
+        <h3 className="text-[15px] font-bold ">MODを追加</h3>
       </div>
 
       <label className="block mb-3">
         <span className="sr-only">追加したいMODの名前</span>
         <div className="flex items-center gap-2 bg-stone-900 px-3" style={bevelIn}>
-          <Search className="w-4 h-4 text-stone-400 shrink-0" />
+
           <input
             value={term}
             onChange={(e) => setTerm(e.target.value)}
@@ -80,9 +79,11 @@ export default function AddModBox({ version, loader, onAdd }) {
             className="w-full bg-transparent text-stone-100 py-3 outline-none placeholder:text-stone-500 text-[13px]"
             autoComplete="off"
           />
-          {searching && <Loader2 className="w-4 h-4 animate-spin text-lime-400 shrink-0" />}
+
         </div>
       </label>
+
+      {searching && <p className="text-[13px] text-stone-400" role="status">検索中…</p>}
 
       {term.trim().length >= 2 && !searching && visible.length === 0 && (
         <p className="text-[13px] text-stone-400">
@@ -115,12 +116,7 @@ export default function AddModBox({ version, loader, onAdd }) {
               className="shrink-0 px-3 min-h-11 bg-lime-600 text-white text-[13px] font-bold flex items-center gap-1 disabled:opacity-60"
               style={bevelOut}
             >
-              {addingId === h.project_id ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Plus className="w-4 h-4" />
-              )}
-              追加
+              {addingId === h.project_id ? "追加中…" : "追加"}
             </button>
           </li>
         ))}

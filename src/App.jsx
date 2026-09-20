@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Pickaxe, BookOpen, RefreshCw } from "lucide-react";
+import SiteHeader from "./components/SiteHeader";
+import StarterLibrary from "./components/StarterLibrary";
 import Filters from "./components/Filters";
 import PackSummary from "./components/PackSummary";
 import CategorySection from "./components/CategorySection";
@@ -16,6 +17,7 @@ import SeoLandingIntro from "./components/SeoLandingIntro";
 import ModsIndex from "./components/ModsIndex";
 import ArticlesIndex from "./components/ArticlesIndex";
 import LoaderGuide from "./components/LoaderGuide";
+import SelectionGuide from "./components/SelectionGuide";
 import TroubleshootingGuide from "./components/TroubleshootingGuide";
 import { getGameVersions } from "./services/modrinth";
 import { buildPack, buildPackFromSlugs, packSignature } from "./utils/packBuilder";
@@ -40,14 +42,14 @@ function normalizePath(p) {
 
 const LOADER_ORDER = LOADERS.map((l) => l.id);
 
-export default function App() {
-  const [route, setRoute] = useState(() => normalizePath(window.location.pathname));
+export default function App({ initialPath }) {
+  const [route, setRoute] = useState(() => normalizePath(initialPath ?? window.location.pathname));
   const landingPage = landingPageForPath(route);
 
   // Initial state: URL first (shared link), then last-used settings, then defaults.
   const initial = useMemo(() => {
-    const url = readUrlState();
-    const landing = landingPageForPath(normalizePath(window.location.pathname));
+    const url = readUrlState(typeof window === "undefined" ? "?" : undefined);
+    const landing = landingPageForPath(normalizePath(initialPath ?? window.location.pathname));
     const saved = url.hasAny || landing ? null : loadSettings();
     const src = url.hasAny
       ? url
@@ -68,7 +70,7 @@ export default function App() {
       slugs: url.hasAny ? url.slugs : [],
       autoRun: url.hasAny,
     };
-  }, []);
+  }, [initialPath]);
 
   const [versions, setVersions] = useState(FALLBACK_VERSIONS);
   const [version, setVersion] = useState(initial.version);
@@ -323,6 +325,7 @@ export default function App() {
   }
 
   // --- routing -------------------------------------------------------------
+  if (route === "/articles/how-we-build-packs") return <SelectionGuide navigate={navigate} />;
   if (route === "/about") return <About navigate={navigate} />;
   if (route === "/privacy") return <Privacy navigate={navigate} />;
   if (route === "/contact") return <Contact navigate={navigate} />;
@@ -338,53 +341,20 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen w-full font-mono text-stone-100 p-4 sm:p-6"
-      style={{ background: "linear-gradient(160deg,#2b2b31 0%,#1c1c20 100%)" }}
+      className="app-shell min-h-screen w-full font-sans text-stone-100 p-4 sm:p-6"
+      style={{ background: "#181a1b" }}
     >
-      <div className="mx-auto max-w-5xl">
-        <header className="flex items-center gap-3 mb-4">
-          <div className="grid place-items-center w-11 h-11 bg-lime-700 shrink-0" style={bevelOut}>
-            <Pickaxe className="w-6 h-6" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[12px] tracking-[0.2em] uppercase text-lime-400 leading-none mb-1">
-              MOD PACK FINDER
-            </p>
-            {landingPage ? (
-              <p className="text-lg sm:text-2xl font-bold leading-tight">
-                マイクラのMOD構成を、3クリックで組み立てる
-              </p>
-            ) : (
-              <h1 className="text-lg sm:text-2xl font-bold leading-tight">
-                マイクラのMOD構成を、3クリックで組み立てる
-              </h1>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate("/guide")}
-            className="shrink-0 px-3 min-h-11 bg-stone-800 text-stone-100 text-[13px] flex items-center gap-1"
-            style={bevelOut}
-          >
-            <BookOpen className="w-4 h-4" />
-            使い方
-          </button>
-        </header>
-
-        <p className="text-[13px] text-stone-300 leading-relaxed mb-3 max-w-3xl">
-          バージョン・Mod Loader・遊びたい方向を選ぶだけ。対応バージョンと依存MODを確認済みの構成を{" "}
-          <b className="text-stone-100">.mrpack</b> で書き出し、Modrinth App / Prism Launcher
-          にドラッグするだけで導入できます。
-        </p>
-        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-stone-400 mb-5">
-          <li>✓ 登録不要</li>
-          <li>✓ 完全無料</li>
-          <li>✓ Modrinth の公開データを使用</li>
-          <li>✓ 所要 30 秒</li>
-        </ul>
+      <div className="mx-auto max-w-7xl">
+        <SiteHeader />
+        <main id="main-content">
+        {!landingPage && <div className="page-heading">
+          <h1>MinecraftのMOD構成を作る</h1>
+          <p>条件に合うMODと依存関係をまとめて選び、.mrpackで書き出せます。</p>
+        </div>}
 
         {landingPage && <SeoLandingIntro page={landingPage} />}
 
+        <div className="builder-layout">
         <Filters
           versions={versions}
           version={version}
@@ -404,7 +374,9 @@ export default function App() {
           error={error}
         />
 
+        <section className="results-column" aria-label="MOD構成の結果" aria-busy={loading}>
         <div ref={resultRef} className="scroll-mt-4" />
+        {!loading && !pack && <StarterLibrary />}
 
         {loading && <LoadingState />}
 
@@ -416,7 +388,7 @@ export default function App() {
                 style={bevelOut}
                 role="status"
               >
-                <RefreshCw className="w-4 h-4 text-amber-300 shrink-0" />
+
                 <span className="flex-1 min-w-0">
                   条件が変更されています。下の構成は変更前のものです。
                 </span>
@@ -445,7 +417,7 @@ export default function App() {
             {isEmptyPack ? (
               <div
                 className="p-6 text-center text-stone-300 text-[13px]"
-                style={{ ...bevelOut, background: "#33333a" }}
+                style={{ ...bevelOut, background: "#202224" }}
               >
                 この条件に合うMODが見つかりませんでした。バージョンやローダー、テーマを変えて試してください。
               </div>
@@ -473,7 +445,7 @@ export default function App() {
                       onClick={() => navigate("/guide")}
                       className="ml-2 text-lime-300 underline"
                     >
-                      使い方を見る →
+                      使い方を見る
                     </button>
                   </div>
                 )}
@@ -513,7 +485,10 @@ export default function App() {
           </>
         )}
 
-        <IntroSection />
+        </section>
+        </div>
+        {!landingPage && <IntroSection />}
+        </main>
         <Footer navigate={navigate} />
       </div>
     </div>

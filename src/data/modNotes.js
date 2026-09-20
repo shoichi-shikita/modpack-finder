@@ -57,7 +57,7 @@ export const MOD_NOTES = {
   "naturalist": "バニラの世界に馴染む野生動物と、その生態を追加します。",
   "born-in-chaos": "闇属性の強敵とボスを追加。夜の危険度が大きく上がります。",
   "mutant-monsters": "バニラMobの強化版（ミュータント）を追加。中盤以降の手応えが出ます。",
-  "cataclysm": "高難度のボスと専用ダンジョンを追加する終盤向けMOD。",
+  "l_enders-cataclysm": "高難度のボスと専用ダンジョンを追加する終盤向けMOD。",
   "guard-villagers": "村を守る衛兵を追加。村人の生存率が上がります。",
 
   // --- 戦闘・装備 ---
@@ -79,8 +79,8 @@ export const MOD_NOTES = {
   // --- 技術・自動化 ---
   "create": "歯車とベルトで動く機械を組む工業MOD。見た目の面白さと自由度が高く、工業系の入門に最適です。",
   "mekanism": "発電から鉱石5倍化までを扱う大規模工業MOD。終盤には核融合まであります。",
-  "applied-energistics-2": "アイテムをデジタル化して一元管理する収納・自動化MOD。中〜上級者向け。",
-  "immersive-engineering": "現実的な見た目の重厚な機械と送電網を追加する工業MOD。",
+  "ae2": "アイテムをデジタル化して一元管理する収納・自動化MOD。中〜上級者向け。",
+  "immersiveengineering": "現実的な見た目の重厚な機械と送電網を追加する工業MOD。",
   "industrial-foregoing": "農業・畜産・鉱石処理を自動化する機械を一通り揃えたMOD。",
   "modern-industrialization": "現代的な工場ラインを組む工業MOD。加工の多段化が特徴です。",
   "refined-storage": "ネットワーク型の大容量ストレージと自動クラフト。AE2より導入が簡単です。",
@@ -128,7 +128,7 @@ export const MOD_NOTES = {
   // --- 軽量化 ---
   "sodium": "描画エンジンを置き換え、FPSを大幅に改善します。軽量化の第一候補。",
   "lithium": "サーバー側（ゲームロジック）の処理を最適化します。見た目は変わりません。",
-  "ferritecore": "メモリ使用量を削減します。MODを大量に入れるほど効きます。",
+  "ferrite-core": "メモリ使用量を削減します。MODを大量に入れるほど効きます。",
   "entityculling": "見えていないブロック・エンティティの描画を省いて軽量化します。",
   "modernfix": "起動時間・メモリ・各種処理をまとめて改善する総合最適化MOD。",
   "immediatelyfast": "GUIやパーティクルなど即時描画まわりを高速化します。",

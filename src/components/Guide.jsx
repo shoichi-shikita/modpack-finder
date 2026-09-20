@@ -1,27 +1,20 @@
-import {
-  ArrowLeft,
-  Package,
-  FolderInput,
-  Rocket,
-  HelpCircle,
-  ExternalLink,
-} from "lucide-react";
 import Footer from "./Footer";
+import SiteHeader from "./SiteHeader";
 import { bevelOut } from "../utils/styles";
 
 function Panel({ children }) {
   return (
-    <div className="p-4 sm:p-5 mb-5" style={{ ...bevelOut, background: "#33333a" }}>
+    <div className="p-4 sm:p-5 mb-5" style={{ ...bevelOut, background: "#202224" }}>
       {children}
     </div>
   );
 }
 
-function SectionTitle({ icon: Icon, children }) {
+function SectionTitle({ children }) {
   return (
     <div className="flex items-center gap-2 mb-3">
-      <Icon className="w-5 h-5 text-lime-400" />
-      <h2 className="text-base sm:text-lg font-bold tracking-wide">{children}</h2>
+
+      <h2 className="text-base sm:text-lg font-bold ">{children}</h2>
     </div>
   );
 }
@@ -30,10 +23,9 @@ function Step({ n, title, children }) {
   return (
     <div className="flex gap-3 mb-3">
       <div
-        className="shrink-0 w-8 h-8 grid place-items-center bg-lime-700 text-white font-bold"
-        style={bevelOut}
+        className="step-number"
       >
-        {n}
+        {n}.
       </div>
       <div className="min-w-0 flex-1 pt-0.5">
         <div className="font-bold text-sm mb-0.5">{title}</div>
@@ -61,7 +53,7 @@ function Ext({ href, children }) {
       className="text-lime-400 underline inline-flex items-center gap-0.5"
     >
       {children}
-      <ExternalLink className="w-3 h-3" />
+
     </a>
   );
 }
@@ -69,10 +61,12 @@ function Ext({ href, children }) {
 export default function Guide({ onBack, navigate }) {
   return (
     <div
-      className="min-h-screen w-full font-mono text-stone-100 p-4 sm:p-6"
-      style={{ background: "linear-gradient(160deg,#2b2b31 0%,#1c1c20 100%)" }}
+      className="min-h-screen w-full font-sans text-stone-100 p-4 sm:p-6"
+      style={{ background: "#181a1b" }}
     >
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-5xl">
+        <SiteHeader />
+        <main id="main-content">
         {/* header */}
         <div className="flex items-center gap-3 mb-5">
           <button
@@ -81,17 +75,17 @@ export default function Guide({ onBack, navigate }) {
             className="px-3 min-h-11 bg-stone-800 text-stone-200 text-xs flex items-center gap-1"
             style={bevelOut}
           >
-            <ArrowLeft className="w-4 h-4" />
+
             戻る
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-widest uppercase leading-none">
+          <h1 className="text-xl sm:text-2xl font-bold   leading-none">
             .mrpackの使い方ガイド
           </h1>
         </div>
 
         {/* intro */}
         <Panel>
-          <SectionTitle icon={Package}>作った「.mrpack」って何？</SectionTitle>
+          <SectionTitle>作った「.mrpack」って何？</SectionTitle>
           <p className="text-[14px] text-stone-300 leading-relaxed mb-2">
             このツールが作る <b>.mrpack</b> は、MOD一式（依存MODも込み）の「設計図」ファイルです。
             中身にMOD本体は入っておらず、「どのMODを・どこから入れるか」だけが書かれています。
@@ -105,7 +99,7 @@ export default function Guide({ onBack, navigate }) {
 
         {/* prerequisites */}
         <Panel>
-          <SectionTitle icon={HelpCircle}>始める前に必要なもの</SectionTitle>
+          <SectionTitle>始める前に必要なもの</SectionTitle>
           <ul className="text-[14px] text-stone-300 leading-relaxed space-y-1 list-disc pl-5">
             <li>
               <b>Minecraft: Java Edition</b>（Java版）を持っていること。統合版（スマホ/Switch/Win10版）ではMODは使えません。
@@ -119,7 +113,7 @@ export default function Guide({ onBack, navigate }) {
 
         {/* recommended: Modrinth App */}
         <Panel>
-          <SectionTitle icon={Rocket}>おすすめ：Modrinth App で入れる</SectionTitle>
+          <SectionTitle>おすすめ：Modrinth App で入れる</SectionTitle>
           <p className="text-[14px] text-stone-300 leading-relaxed mb-4">
             一番かんたんなルートです。ランチャー自体が無料で、ドラッグ＆ドロップだけで完結します。
           </p>
@@ -139,7 +133,7 @@ export default function Guide({ onBack, navigate }) {
 
         {/* alternative: Prism */}
         <Panel>
-          <SectionTitle icon={FolderInput}>別の方法：Prism Launcher で入れる</SectionTitle>
+          <SectionTitle>別の方法：Prism Launcher で入れる</SectionTitle>
           <p className="text-[14px] text-stone-300 leading-relaxed mb-4">
             すでに Prism Launcher を使っている人向け。手順もほぼ同じです。
           </p>
@@ -160,7 +154,7 @@ export default function Guide({ onBack, navigate }) {
 
         {/* FAQ */}
         <Panel>
-          <SectionTitle icon={HelpCircle}>よくある質問・つまずき</SectionTitle>
+          <SectionTitle>よくある質問・つまずき</SectionTitle>
 
           <Faq q="ファイルをダブルクリックしても開かない">
             それが正常です。.mrpack は上のランチャーに読み込ませて使うもので、単体では起動しません。
@@ -187,7 +181,7 @@ export default function Guide({ onBack, navigate }) {
         </Panel>
 
         <Panel>
-          <SectionTitle icon={HelpCircle}>あわせて読みたい</SectionTitle>
+          <SectionTitle>あわせて読みたい</SectionTitle>
           <div className="flex flex-col sm:flex-row gap-2 text-[13px]">
             <a href="/articles/loader-guide/" className="px-3 min-h-11 bg-stone-800 text-lime-300 underline inline-flex items-center" style={bevelOut}>
               Forge・Fabric・NeoForge・Quiltの違い
@@ -202,14 +196,15 @@ export default function Guide({ onBack, navigate }) {
           <button
             type="button"
             onClick={onBack}
-            className="px-5 py-3 bg-lime-600 text-white font-bold uppercase tracking-widest text-sm inline-flex items-center gap-2"
+            className="px-5 py-3 bg-lime-600 text-white font-bold   text-sm inline-flex items-center gap-2"
             style={bevelOut}
           >
-            <ArrowLeft className="w-4 h-4" />
+
             ツールに戻る
           </button>
         </div>
 
+        </main>
         {navigate && <Footer navigate={navigate} />}
       </div>
     </div>

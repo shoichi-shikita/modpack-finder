@@ -34,7 +34,7 @@ export default function Privacy({ navigate }) {
         ) : (
           <>
             <p>
-              当サイトは第三者配信の広告サービスである <b>Google AdSense</b> を利用しています。
+              当サイトは第三者配信の広告サービスである <b>Google AdSense</b> の導入を予定しています。
               {SITE_CONFIG.adsStatus === "pending" ? (
                 <>
                   {" "}
@@ -66,8 +66,7 @@ export default function Privacy({ navigate }) {
               </li>
               <li>
                 欧州経済領域（EEA）、英国、スイスの利用者に対しては、Googleが認定した同意管理プラットフォーム
-                （CMP）を通じて同意を取得したうえで広告を配信します。同意管理が有効になるまでの間、
-                これらの地域では広告枠を表示しません。
+                （CMP）など必要な同意管理を整備してから配信を開始する予定です。現在は広告を配信していません。
               </li>
             </ul>
           </>
@@ -78,13 +77,21 @@ export default function Privacy({ navigate }) {
         <p>
           当サイトはMOD情報の取得に、MOD配布プラットフォーム <b>Modrinth</b> の公開APIを利用しています。
           MODの検索や詳細取得の際、利用者のブラウザから Modrinth のサーバーへリクエストが送信されます。
-          Modrinth 側での情報の取り扱いについては、Modrinth のプライバシーポリシーをご確認ください。
+          検索語・Minecraftのバージョン・ローダーなどの条件も送信され、画像は外部の配信サーバーから読み込まれます。
+          詳細は <Ext href="https://modrinth.com/legal/privacy">Modrinthのプライバシーポリシー</Ext>をご確認ください。
         </p>
       </Section>
 
+      <Section title="ブラウザ内の保存と共有URL">
+        <p>選択条件と入力した検索語は、次回利用のためにブラウザのlocalStorageに保存します。ゲームのバージョン一覧も一時保存します。ブラウザのサイトデータを削除すると消去できます。</p>
+        <p>検索条件やMODの識別名はURLにも含まれます。共有URLを送った相手はその内容を確認できます。検索欄には氏名やメールアドレスなどの個人情報を入力しないでください。</p>
+      </Section>
+      <Section title="お問い合わせの情報">
+        <p>メール等で送信された連絡先と本文は、お問い合わせへの対応や不具合の確認に使用します。情報の取り扱いに関する連絡も <a href="/contact/" className="underline">お問い合わせ窓口</a>で受け付けます。</p>
+      </Section>
       <Section title="ダウンロード（.mrpack）について">
         <p>
-          当サイトの <b>.mrpack</b> 生成機能は、可能な限り利用者のブラウザ上で処理されます。
+          当サイトの <b>.mrpack</b> ファイルは利用者のブラウザ内で生成します。ローダーのバージョン取得時には、選択したローダーに応じてFabric、Quilt、Forge、NeoForgeの配信サーバーへ接続します。
           出力される .mrpack は、各MODのダウンロード先やハッシュ等の情報をまとめたファイルであり、
           当サイトが利用者のMinecraftアカウント情報やログイン情報を収集・保存することはありません。
         </p>
