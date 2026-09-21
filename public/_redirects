@@ -5,4 +5,5 @@
 #
 # Everything else is genuinely missing. The previous catch-all rewrite to
 # index.html with a 200 turned every typo'd URL into a soft 404.
-/*    /404.html    404
+# Pages serves the top-level 404.html automatically. A 404 status is not a
+# supported _redirects rewrite; /api/* is handled by Pages Functions.

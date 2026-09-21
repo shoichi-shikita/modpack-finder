@@ -5,6 +5,7 @@ import Filters from "./components/Filters";
 import PackSummary from "./components/PackSummary";
 import CategorySection from "./components/CategorySection";
 import AddModBox from "./components/AddModBox";
+import YouTubeImport from "./components/YouTubeImport";
 import WarningBox from "./components/WarningBox";
 import LoadingState from "./components/LoadingState";
 import Guide from "./components/Guide";
@@ -234,6 +235,15 @@ export default function App({ initialPath }) {
     await runBuild({ version, loader, themeIds, query, includePerformance });
   }
 
+  async function handleVideoImport({ slugs, version: nextVersion, loader: nextLoader }) {
+    if (loading || !slugs.length) return;
+    setVersion(nextVersion);
+    setLoader(nextLoader);
+    setIncludePerformance(false);
+    setQuery("");
+    await runBuild({ version: nextVersion, loader: nextLoader, themeIds, query: "", includePerformance: false, slugs });
+  }
+
   async function handleDownload() {
     if (!pack) return;
     setDownloading(true);
@@ -375,6 +385,7 @@ export default function App({ initialPath }) {
         />
 
         <section className="results-column" aria-label="MOD構成の結果" aria-busy={loading}>
+        <YouTubeImport onUse={handleVideoImport} building={loading} versions={versions} />
         <div ref={resultRef} className="scroll-mt-4" />
         {!loading && !pack && <StarterLibrary />}
 

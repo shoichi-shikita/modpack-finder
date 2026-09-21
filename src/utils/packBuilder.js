@@ -136,6 +136,7 @@ async function attachVersions(map, loader, version) {
 
 // Breadth-first dependency resolution shared by both build paths.
 async function resolveDependencies(adopted, loader, version, errors) {
+  const maxTotal = Math.min(160, Math.max(MAX_TOTAL, adopted.size + 45));
   const visited = new Set(adopted.keys());
   const depEntries = new Map();
   const incompatibleDeps = new Set();
@@ -146,7 +147,10 @@ async function resolveDependencies(adopted, loader, version, errors) {
   }
 
   while (queue.length) {
-    if (visited.size >= MAX_TOTAL) break;
+    if (visited.size >= maxTotal) {
+      errors.push("依存MODの確認上限に達しました。未確認の依存関係があります。導入前に配布ページを確認してください。");
+      break;
+    }
     const { id, requiredBy } = queue.shift();
 
     if (visited.has(id)) {
@@ -370,6 +374,7 @@ export async function buildPackFromSlugs({ version, loader, slugs, signature }) 
   }
 
   const before = adopted.size;
+  for (const entry of adopted.values()) entry.reason = "指定された構成から取り込んだMOD。対応ファイルと必須依存MODを確認しています。";
   await attachVersions(adopted, loader, version);
   if (adopted.size < before) {
     errors.push(
