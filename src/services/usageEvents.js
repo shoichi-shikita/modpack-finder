@@ -1,5 +1,28 @@
+import { VIDEO_CAMPAIGN } from "../../shared/usageCampaign.js";
+
+let campaign = "";
+
+export function startUsageSession() {
+  const params = new URLSearchParams(window.location.search);
+  const taggedVisit = params.get("utm_source") === "youtube"
+    && params.get("utm_campaign") === VIDEO_CAMPAIGN;
+
+  try {
+    if (taggedVisit) sessionStorage.setItem("mpf.videoCampaign", VIDEO_CAMPAIGN);
+    campaign = sessionStorage.getItem("mpf.videoCampaign") === VIDEO_CAMPAIGN ? VIDEO_CAMPAIGN : "";
+  } catch {
+    // Keep tracking for this page when storage is unavailable.
+  }
+  if (taggedVisit) {
+    campaign = VIDEO_CAMPAIGN;
+    trackUsageEvent("campaign_landing");
+  }
+}
+
 export function trackUsageEvent(eventName) {
-  void fetch(`/api/usage-event?event=${eventName}`, {
+  const params = new URLSearchParams({ event: eventName });
+  if (campaign && eventName !== "outbound_click") params.set("campaign", campaign);
+  void fetch(`/api/usage-event?${params}`, {
     method: "POST",
     keepalive: true,
     credentials: "omit",
