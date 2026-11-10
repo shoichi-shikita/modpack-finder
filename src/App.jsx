@@ -24,6 +24,7 @@ import { getGameVersions } from "./services/modrinth";
 import { buildPack, buildPackFromSlugs, packSignature } from "./utils/packBuilder";
 import { removeMod, swapMod, addMod } from "./utils/packEdit";
 import { buildMrpack, downloadBlob } from "./services/mrpack";
+import { trackUsageEvent } from "./services/usageEvents";
 import { FALLBACK_VERSIONS, LOADERS } from "./data/categories";
 import { isLoaderSupported, firstSupportedLoader } from "./data/loaderSupport";
 import { applyRouteMeta } from "./utils/seo";
@@ -254,6 +255,7 @@ export default function App({ initialPath }) {
       const packName = `MPF ${version} ${loader}${themePart ? ` ${themePart}` : ""} ${stamp}`;
       const result = await buildMrpack(pack, packName);
       downloadBlob(result.blob, result.name);
+      trackUsageEvent("mrpack_export");
 
       const notes = [
         `${result.included} 個のMODを書き出しました（約 ${fmtBytes(result.totalSize)}）。`,

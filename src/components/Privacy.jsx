@@ -26,6 +26,10 @@ export default function Privacy({ navigate }) {
           ページの表示回数や参照元、大まかな利用環境などの統計情報を収集します。
           これらの情報はサイトの改善のためにのみ利用します。
         </p>
+        <p>
+          .mrpack のダウンロード開始と外部サイトへのリンク操作は、Cloudflare Workers Analytics Engine で件数を集計します。
+          このイベント計測では、イベントの種類だけを記録し、リンク先や入力内容、ファイル名、利用者を識別するIDは記録しません。
+        </p>
       </Section>
 
       <Section title="広告について">
