@@ -96,10 +96,11 @@ export default function PackSummary({
             を開く
           </Step>
           <Step n={2}>
-            いまダウンロードした <b className="text-stone-100">.mrpack</b> をウィンドウにドラッグ＆ドロップ
+            Modrinth Appでは <b className="text-stone-100">.mrpack</b> をウィンドウにドラッグ＆ドロップ。
+            Prism Launcherでは「インスタンスを追加」→「Import」→「Local file」でファイルを選択。
           </Step>
           <Step n={3}>
-            「インストール」を押す。依存MODとローダーも自動でそろいます
+            ランチャーの案内に沿って読み込み、追加されたインスタンスを起動
           </Step>
         </ol>
         <p className="text-[13px] text-stone-300 mt-3">
